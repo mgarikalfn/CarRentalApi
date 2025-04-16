@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace VIGA.Entities
+namespace CarRentalApi.Entities
 {
     public static class RoleSeeder
     {
         public static async Task SeedAsync(RoleManager<IdentityRole> roleManager)
         {
-            string[] roles = { "Admin", "Officer", "User" };
+            string[] roles = { "Admin", "Owner", "Renter" };
 
             foreach (var role in roles)
             {

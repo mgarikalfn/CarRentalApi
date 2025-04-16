@@ -2,6 +2,7 @@
 {
     public interface IFileStorageService
     {
-        Task<string> SaveFileAsync(IFormFile file, string containerName);
+        Task<string> SaveVehicleImageAsync(IFormFile imageFile);
+        bool  DeleteVehicleImageAsync(string imageUrl);
     }
 }

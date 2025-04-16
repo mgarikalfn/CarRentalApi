@@ -6,7 +6,7 @@ namespace CarRentalApi.Entities
     public class Vehicle
     {
         public int Id { get; set; }
-        public int OwnerId { get; set; }
+        public string OwnerId { get; set; }
         public string Make { get; set; }
         public string Model { get; set; }
         public int Year { get; set; }
@@ -23,7 +23,7 @@ namespace CarRentalApi.Entities
 
         // Navigation properties
         public ApplicationUser Owner { get; set; }
-       // public ICollection<VehicleImage> Images { get; set; }
+       public ICollection<VehicleImage> Images { get; set; }
         public ICollection<Availability> Availabilities { get; set; }
         public ICollection<Booking> Bookings { get; set; }
         public ICollection<DamageReport> DamageReports { get; set; }

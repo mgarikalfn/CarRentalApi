@@ -4,6 +4,7 @@ using CarRentalApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CarRentalApi.Migrations
 {
     [DbContext(typeof(RentalDbContext))]
-    partial class RentalDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250416082406_AddedVehicleImage")]
+    partial class AddedVehicleImage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -338,7 +341,10 @@ namespace CarRentalApi.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("OwnerId")
+                    b.Property<int>("OwnerId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("OwnerId1")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
@@ -354,7 +360,7 @@ namespace CarRentalApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OwnerId");
+                    b.HasIndex("OwnerId1");
 
                     b.HasIndex("Make", "Model");
 
@@ -657,7 +663,7 @@ namespace CarRentalApi.Migrations
                 {
                     b.HasOne("CarRentalApi.Entities.ApplicationUser", "Owner")
                         .WithMany("OwnedVehicles")
-                        .HasForeignKey("OwnerId")
+                        .HasForeignKey("OwnerId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

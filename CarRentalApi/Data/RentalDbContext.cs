@@ -74,6 +74,12 @@ namespace CarRentalApi.Data
                 .HasForeignKey(r => r.VehicleId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // Set up cascading deletes where appropriate
+            modelBuilder.Entity<Vehicle>()
+                .HasMany(v => v.Images)
+                .WithOne(i => i.Vehicle)
+                .OnDelete(DeleteBehavior.Cascade);
+
             // Indexes
             modelBuilder.Entity<Vehicle>()
                 .HasIndex(v => new { v.Make, v.Model });

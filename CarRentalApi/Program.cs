@@ -5,6 +5,8 @@ using CarRentalApi.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -24,7 +26,15 @@ builder.Services.AddControllers();
 
 //builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>();
-//builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+builder.Services.AddTransient<IFileStorageService, FileStorageService>();
+
+//Configure static files
+builder.Services.Configure<StaticFileOptions>(options =>
+{
+    options.FileProvider = new PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "Uploads"));
+    options.RequestPath = "/uploads";
+});
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"];
@@ -88,9 +98,26 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+        await RoleSeeder.SeedAsync(roleManager);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while seeding roles.");
+    }
+}
+
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.UseStaticFiles();
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
@@ -98,7 +125,7 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = "swagger";
     });
 }
-
+app.UseStaticFiles();
 app.UseHttpsRedirection();
 
 app.UseAuthentication(); // Still needed for Identity
