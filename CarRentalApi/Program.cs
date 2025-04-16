@@ -24,6 +24,7 @@ builder.Services.AddControllers();
 
 //builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+//builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"];
@@ -48,7 +49,7 @@ builder.Services.AddAuthentication(options =>
     });
 
 
-
+builder.Services.AddAutoMapper(typeof(Program));
 // Configure Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>

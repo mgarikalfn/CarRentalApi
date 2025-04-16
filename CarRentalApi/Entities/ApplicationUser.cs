@@ -9,9 +9,11 @@ namespace CarRentalApi.Entities
         public string? DriverLicenseNumber { get; set; }
         public DateTime? DriverLicenseExpiryDate { get; set; }
         public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;
+        public bool IsDriverLicenseVerified { get; set; }
+        public DateTime? DriverLicenseVerifiedDate { get; set; }
 
         // Navigation properties
-       
+
         public ICollection<Vehicle> OwnedVehicles { get; set; }
         public ICollection<Booking> Bookings { get; set; }
         public ICollection<Review> GivenReviews { get; set; }
