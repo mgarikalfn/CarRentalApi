@@ -22,8 +22,13 @@ namespace CarRentalApi.Mapping
             CreateMap<Vehicle, VehicleDto>();
             CreateMap<ApplicationUser, OwnerDto>();
             CreateMap<UpdateVehicleDto, Vehicle>();
-                
-                
+
+            CreateMap<VehicleImage, VehicleImageDto>();
+
+            // Reverse mapping if needed
+            CreateMap<VehicleImageDto, VehicleImage>();
+
+
         }
     }
 }

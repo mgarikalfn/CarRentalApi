@@ -36,7 +36,6 @@ public class VehiclesController : ControllerBase
     public async Task<ActionResult<Vehicle>> CreateVehicle(
         [FromForm] CreateVehicleDto createVehicleDto)
     {
-        // Get current user
         var user = await _userManager.GetUserAsync(User);
         if (user == null) return Unauthorized();
 
@@ -83,7 +82,7 @@ public class VehiclesController : ControllerBase
     public async Task<ActionResult<Vehicle>> GetVehicle(int id)
     {
         var vehicle = await _context.Vehicles
-            .Include(v => v.Owner)  // Changed from OwnerId to Owner
+            .Include(v => v.Owner)  
             .FirstOrDefaultAsync(v => v.Id == id);
 
         if (vehicle == null) return NotFound();
