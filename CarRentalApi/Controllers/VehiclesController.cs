@@ -1,9 +1,12 @@
 ﻿using System.Security.Claims;
 using AutoMapper;
+using CarRentalApi.Application.Vehicle.command;
+using CarRentalApi.Application.Vehicle.query;
 using CarRentalApi.Data;
 using CarRentalApi.Dto.vehicle;
 using CarRentalApi.Entities;
 using CarRentalApi.Service;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -18,17 +21,21 @@ public class VehiclesController : ControllerBase
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IFileStorageService _fileStorageService;
     private readonly IMapper _mapper;
+    private readonly IMediator _mediator;
 
     public VehiclesController(
         RentalDbContext context,
         UserManager<ApplicationUser> userManager,
         IFileStorageService fileStorageService,
-        IMapper mapper)
+        IMapper mapper,
+        IMediator mediator)
     {
         _context = context;
         _userManager = userManager;
         _fileStorageService = fileStorageService;
         _mapper = mapper;
+        _mediator = mediator;
+
     }
 
     [HttpPost]
@@ -39,102 +46,40 @@ public class VehiclesController : ControllerBase
         var user = await _userManager.GetUserAsync(User);
         if (user == null) return Unauthorized();
 
-        // Check if license plate already exists
-        if (await _context.Vehicles.AnyAsync(v => v.LicensePlate == createVehicleDto.LicensePlate))
-        {
-            return BadRequest("A vehicle with this license plate already exists");
-        }
+        var command = _mapper.Map<CreateVehicleCommand>(createVehicleDto);
+        command.OwnerId = user.Id;
 
-        // Map basic properties
-        var vehicle = _mapper.Map<Vehicle>(createVehicleDto);
-        vehicle.OwnerId = user.Id;
-
-        if (createVehicleDto.Images != null && createVehicleDto.Images.Count > 0)
-        {
-            vehicle.Images = new List<VehicleImage>();
-
-            for (int i = 0; i < createVehicleDto.Images.Count; i++)
-            {
-                var imageFile = createVehicleDto.Images[i];
-                var imageUrl = await _fileStorageService.SaveVehicleImageAsync(imageFile);
-
-                vehicle.Images.Add(new VehicleImage
-                {
-                    ImageUrl = imageUrl,
-                    IsPrimary = i == 0, // First image is primary
-                    DisplayOrder = i
-                });
-            }
-        }
-
-        // Add to database
-        _context.Vehicles.Add(vehicle);
-        await _context.SaveChangesAsync();
-
-        // Return the created vehicle
-
-        var response = _mapper.Map<VehicleDto>(vehicle);
-        return Ok(response);
+        var result =await  _mediator.Send(command);
+        return Ok(result);
     }
 
     [HttpGet("{id}")]
     [AllowAnonymous]
     public async Task<ActionResult<Vehicle>> GetVehicle(int id)
     {
-        var vehicle = await _context.Vehicles
-            .Include(v => v.Owner)  
-            .FirstOrDefaultAsync(v => v.Id == id);
+        var command = new GetVehicleByIdCommand
+        {
+            Id = id
+        };
 
-        if (vehicle == null) return NotFound();
-
-        return Ok(_mapper.Map<VehicleDto>(vehicle));
+        var result = await _mediator.Send(command);
+        if (result == null) return NotFound();
+        return Ok(result);
     }
     [HttpPut("{id}")]
     [Authorize]
-    public async Task<IActionResult> UpdateVehicle(int id, UpdateVehicleDto vehicleUpdateDto)
+    public async Task<IActionResult> UpdateVehicle([FromQuery] int id, UpdateVehicleDto vehicleUpdateDto)
     {
         var user = await _userManager.GetUserAsync(User);
-        
-        var vehicle = await _context.Vehicles.FindAsync(id);
-        if (vehicle == null)
-        {
-            return NotFound();
-        }
 
-        if (vehicle.OwnerId != user.Id)
-        {
-            return Forbid(); 
-        }
+        if (user == null) return NotFound();
 
-        _mapper.Map(vehicleUpdateDto, vehicle);
+        var command = _mapper.Map<UpdateVehicleCommand>(vehicleUpdateDto);
+        command.OwnerId = user.Id;
+        command.Id = id;
+        var result = await _mediator.Send(command);
 
-        // Mark as modified and save changes
-        _context.Entry(vehicle).State = EntityState.Modified;
-
-        try
-        {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!VehicleExists(id))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
-        }
-
-    
-        var updatedVehicleDto = _mapper.Map<VehicleDto>(vehicle);
-        return Ok(updatedVehicleDto);
-    }
-
-    private bool VehicleExists(int id)
-    {
-        return _context.Vehicles.Any(e => e.Id == id);
+        return Ok(result);
     }
 
     [HttpDelete("{id}")]
@@ -143,27 +88,14 @@ public class VehiclesController : ControllerBase
     {
         var user = await _userManager.GetUserAsync(User);
         if(user == null) { return  NotFound(); }
-        var vehicle = await _context.Vehicles.FindAsync(id);
-        if (vehicle == null) { return NotFound(); }
 
-        if (vehicle.OwnerId != user.Id)
+        var command = new DeleteVehicleCommand
         {
-            return Forbid();
-        }
-
-        // Delete vehicle images from storage
-        if (vehicle.Images != null)
-        {
-            foreach (var image in vehicle.Images)
-            {
-                 _fileStorageService.DeleteVehicleImageAsync(image.ImageUrl);
-            }
-        }
-        // Remove vehicle from database
-        _context.Vehicles.Remove(vehicle);
-        await _context.SaveChangesAsync();
-        return NoContent();
-
+            Id = id,
+            OwnerId = user.Id
+        };
+        var result = await _mediator.Send(command);
+        return Ok(result);
 
     }
 }
