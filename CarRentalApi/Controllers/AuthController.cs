@@ -41,9 +41,10 @@ namespace CarRentalApi.Controllers
             var result = await _userManager.CreateAsync(user, registerDto.Password);
             if (result.Succeeded)
             {
-                //await _userManager.AddToRoleAsync(user, "User");
+                await _userManager.AddToRoleAsync(user, registerDto.ChooseRole);
                 // Add default claim for new users
                 await _userManager.AddClaimAsync(user, new Claim("UserType", "Regular"));
+
 
                 // Add driver license claim if provided
                 if (!string.IsNullOrEmpty(registerDto.DriverLicenseNumber))

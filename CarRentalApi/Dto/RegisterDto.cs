@@ -14,5 +14,7 @@ namespace CarRentalApi.Dto
         public string Password { get; set; }
         public string? DriverLicenseNumber { get; set; }
         public DateTime? DriverLicenseExpiryDate { get; set; }
+
+        public string? ChooseRole { get; set; } = "Renter"; // Default role is "User"
     }
 }

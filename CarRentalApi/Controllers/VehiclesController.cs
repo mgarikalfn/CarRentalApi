@@ -5,6 +5,7 @@ using CarRentalApi.Application.Vehicle.query;
 using CarRentalApi.Data;
 using CarRentalApi.Dto.vehicle;
 using CarRentalApi.Entities;
+using CarRentalApi.Extensions;
 using CarRentalApi.Service;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -43,11 +44,11 @@ public class VehiclesController : ControllerBase
     public async Task<ActionResult<Vehicle>> CreateVehicle(
         [FromForm] CreateVehicleDto createVehicleDto)
     {
-        var user = await _userManager.GetUserAsync(User);
-        if (user == null) return Unauthorized();
+        var userId =  _userManager.GetUserId(User);
+        if (userId == null) return Unauthorized();
 
         var command = _mapper.Map<CreateVehicleCommand>(createVehicleDto);
-        command.OwnerId = user.Id;
+        command.OwnerId = userId;
 
         var result =await  _mediator.Send(command);
         return Ok(result);
@@ -97,5 +98,45 @@ public class VehiclesController : ControllerBase
         var result = await _mediator.Send(command);
         return Ok(result);
 
+    }
+
+    // Controllers/VehiclesController.cs
+    [HttpGet("filter")]
+    [AllowAnonymous]
+    public async Task<ActionResult<PaginatedResponse<VehicleDto>>> FilterVehicles(
+        [FromQuery] VehicleFilterDto filter)
+    {
+        // Base query
+        var query = _context.Vehicles
+            .Include(v => v.Images)
+            .Include(v => v.VehicleFeatures)
+            .ThenInclude(vf => vf.Feature)
+            .AsQueryable();
+
+        // Apply filters
+        query = query
+            .ApplyFilter(filter)
+            .ApplySorting(filter);
+
+        // Get total count before pagination
+        var totalCount = await query.CountAsync();
+
+        // Apply pagination
+        var vehicles = await query
+            .ApplyPagination(filter)
+            .ToListAsync();
+
+        // Map to DTO
+        var vehicleDtos = _mapper.Map<List<VehicleDto>>(vehicles);
+
+        // Return paginated response
+        return Ok(new PaginatedResponse<VehicleDto>
+        {
+            Data = vehicleDtos,
+            TotalCount = totalCount,
+            PageNumber = filter.PageNumber,
+            PageSize = filter.PageSize,
+            TotalPages = (int)Math.Ceiling(totalCount / (double)filter.PageSize)
+        });
     }
 }
