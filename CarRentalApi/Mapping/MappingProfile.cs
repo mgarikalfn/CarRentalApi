@@ -6,7 +6,7 @@ using CarRentalApi.Dto.Availablity;
 using CarRentalApi.Dto.Booking;
 using CarRentalApi.Dto.User;
 using CarRentalApi.Dto.vehicle;
-using CarRentalApi.Entities;
+using Domain.Entities;
 
 namespace CarRentalApi.Mapping
 {

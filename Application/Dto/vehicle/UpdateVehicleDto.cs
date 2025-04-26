@@ -1,13 +1,13 @@
-﻿using MediatR;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace CarRentalApi.Application.Vehicle.command
+namespace CarRentalApi.Dto.vehicle
 {
-    public class UpdateVehicleCommand:IRequest<int>
+    public class UpdateVehicleDto
     {
+        
         public string? Make { get; set; }
-        public int Id { get; set; }
-        public string OwnerId { get; set; }
 
+        
         public string? Model { get; set; }
 
         public int? Year { get; set; }
@@ -27,5 +27,6 @@ namespace CarRentalApi.Application.Vehicle.command
         public string? Description { get; set; }
 
         public decimal? DailyPrice { get; set; }
+
     }
 }

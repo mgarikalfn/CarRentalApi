@@ -1,7 +1,10 @@
 using System.Text;
 using CarRentalApi.Data;
 using CarRentalApi.Entities;
-using CarRentalApi.Service;
+using Domain.Abstraction;
+using Domain.Services.Interfaces;
+using Infrastructure.Services;
+using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +20,7 @@ builder.Services.AddDbContext<RentalDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Simplified Identity Configuration (without JWT)
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+builder.Services.AddIdentity<Domain.Entities.ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<RentalDbContext>()
     .AddDefaultTokenProviders();
 
@@ -28,9 +31,10 @@ builder.Services.AddControllers();
 builder.Services.AddMediatR(configuration =>
     configuration.RegisterServicesFromAssembly(typeof(Program).Assembly));
 
-//builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
-builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddTransient<IFileStorageService, FileStorageService>();
+builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
+builder.Services.AddScoped<IAvailabilityRepository, AvailabilityRepository>();
+//builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IFileStorageService,Infrastructure.Services.FileStorageService>();
 
 //Configure static files
 builder.Services.Configure<StaticFileOptions>(options =>

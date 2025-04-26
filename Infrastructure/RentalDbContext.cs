@@ -1,12 +1,17 @@
-﻿using Domain.Entities;
+﻿
+using System.ComponentModel.DataAnnotations;
+using Domain.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
 
-namespace CarRentalApi.Data
+namespace Infrastructure.Data
 {
     public class RentalDbContext : IdentityDbContext<ApplicationUser>
     {
+        public RentalDbContext(DbContextOptions<RentalDbContext> options) : base(options)
+        {
+        }
+
         public DbSet<Availability> Availabilities { get; set; }
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<DamageReport> DamageReports { get; set; }
@@ -16,19 +21,44 @@ namespace CarRentalApi.Data
         public DbSet<Feature> Features { get; set; }
         public DbSet<VehicleFeatures> VehicleFeatures { get; set; }
 
-        public RentalDbContext(DbContextOptions<RentalDbContext> options) : base(options)
-        { }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            if (modelBuilder == null)
+            {
+                throw new ArgumentNullException(nameof(modelBuilder));
+            }
+
             base.OnModelCreating(modelBuilder);
+
+            // Ignore DisplayFormatAttribute for all entities
             modelBuilder.Ignore<DisplayFormatAttribute>();
+
+            // Configure Identity tables (optional)
+            modelBuilder.Entity<ApplicationUser>(b =>
+            {
+                b.ToTable("Users");
+                b.HasMany(u => u.Bookings)
+                    .WithOne(b => b.Renter)
+                    .HasForeignKey(b => b.RenterId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
 
             // Vehicle-Feature many-to-many
             modelBuilder.Entity<VehicleFeatures>()
                 .HasKey(vf => new { vf.VehicleId, vf.FeatureId });
 
-            // Booking-Review one-to-one relationships
+            modelBuilder.Entity<VehicleFeatures>()
+                .HasOne(vf => vf.Vehicle)
+                .WithMany(v => v.VehicleFeatures)
+                .HasForeignKey(vf => vf.VehicleId);
+
+            modelBuilder.Entity<VehicleFeatures>()
+                .HasOne(vf => vf.Feature)
+                .WithMany(f => f.VehicleFeatures)
+                .HasForeignKey(vf => vf.FeatureId);
+
+            // Booking-Review relationships
             modelBuilder.Entity<Review>()
                 .HasOne(r => r.BookingAsVehicleReview)
                 .WithOne(b => b.VehicleReview)
@@ -41,14 +71,7 @@ namespace CarRentalApi.Data
                 .HasForeignKey<Review>(r => r.RenterReviewBookingId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Corrected User-Booking relationship with proper key types
-            modelBuilder.Entity<Booking>()
-                .HasOne(b => b.Renter)
-                .WithMany(u => u.Bookings)
-                .HasForeignKey(b => b.RenterId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // Vehicle-Booking one-to-many
+            // Vehicle-Booking relationship
             modelBuilder.Entity<Booking>()
                 .HasOne(b => b.Vehicle)
                 .WithMany(v => v.Bookings)
@@ -74,7 +97,7 @@ namespace CarRentalApi.Data
                 .HasForeignKey(r => r.VehicleId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Set up cascading deletes where appropriate
+            // Vehicle-Images relationship
             modelBuilder.Entity<Vehicle>()
                 .HasMany(v => v.Images)
                 .WithOne(i => i.Vehicle)

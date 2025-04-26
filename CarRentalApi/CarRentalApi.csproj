@@ -22,7 +22,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Application\Vehicle\command\" />
     <Folder Include="Uploads\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Domain\Domain.csproj" />
+    <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
