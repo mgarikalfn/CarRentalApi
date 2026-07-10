@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
-using CarRentalApi.Dto;
-using CarRentalApi.Entities;
+using Application.Dto.User;
+using Domain.Entities;
 using CarRentalApi.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

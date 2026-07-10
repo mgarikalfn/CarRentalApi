@@ -1,51 +1,46 @@
-﻿using AutoMapper;
-using CarRentalApi.Data;
-using CarRentalApi.Dto.Availablity;
+using Application.Dto.Availablity;
+using AutoMapper;
+using Domain.Abstraction;
+using FluentResults;
 using MediatR;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
-namespace CarRentalApi.Application.Availability.Query
+namespace Application.Features.Availability.Query
 {
-    public class GetVehicleByIdHandler : IRequestHandler<GetAvailabilityById, ActionResult>
+    public class GetVehicleByIdHandler : IRequestHandler<GetAvailabilityById, Result<List<AvailabilityDto>>>
     {
-        private readonly RentalDbContext _context;
+        private readonly IAvailabilityRepository _availabilityRepository;
+        private readonly IVehicleRepository _vehicleRepository;
         private readonly IMapper _mapper;
-        public GetVehicleByIdHandler(RentalDbContext context, IMapper mapper)
+
+        public GetVehicleByIdHandler(
+            IAvailabilityRepository availabilityRepository,
+            IVehicleRepository vehicleRepository,
+            IMapper mapper)
         {
-            _context = context;
+            _availabilityRepository = availabilityRepository;
+            _vehicleRepository = vehicleRepository;
             _mapper = mapper;
         }
 
-        public async Task<ActionResult> Handle(GetAvailabilityById request, CancellationToken cancellationToken)
+        public async Task<Result<List<AvailabilityDto>>> Handle(GetAvailabilityById request, CancellationToken cancellationToken)
         {
-            var vehicleExists = await _context.Vehicles.AnyAsync(v => v.Id == request.VehicleId);
+            var vehicleExists = await _vehicleRepository.ExistsAsync(request.VehicleId);
             if (!vehicleExists)
             {
-                return new NotFoundObjectResult("Vehicle not found");
+                return Result.Fail<List<AvailabilityDto>>("Vehicle not found");
             }
 
-            var query = _context.Availabilities.Where(a => a.VehicleId == request.VehicleId);
-            if (request.StartDate.HasValue)
-            {
-                query = query.Where(a => a.EndDate >= request.StartDate.Value);
-            }
-            if (request.EndDate.HasValue)
-            {
-                query = query.Where(a => a.StartDate <= request.EndDate.Value);
-            }
+            var availabilities = (await _availabilityRepository.GetAvailabilityByIdAsync(request.VehicleId) is { } avail)
+                ? new List<Domain.Entities.Availability> { avail }
+                : new List<Domain.Entities.Availability>();
 
-            var availabilities = await query.OrderBy(a => a.StartDate).ToListAsync();
-            if (availabilities == null || !availabilities.Any())
+            if (!availabilities.Any())
             {
-                return new NotFoundObjectResult("No availabilities found");
+                return Result.Fail<List<AvailabilityDto>>("No availabilities found");
             }
 
             var availabilityDtos = _mapper.Map<List<AvailabilityDto>>(availabilities);
-
-            return new OkObjectResult( availabilityDtos);
+            return Result.Ok(availabilityDtos);
         }
-
-       
     }
 }

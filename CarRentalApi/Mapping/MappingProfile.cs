@@ -1,12 +1,12 @@
-﻿using AutoMapper;
-using CarRentalApi.Application.Availability.Command;
-using CarRentalApi.Application.Vehicle.command;
-using CarRentalApi.Dto;
-using CarRentalApi.Dto.Availablity;
-using CarRentalApi.Dto.Booking;
-using CarRentalApi.Dto.User;
-using CarRentalApi.Dto.vehicle;
+using Application.Dto.Availablity;
+using Application.Dto.Booking;
+using Application.Dto.User;
+using Application.Dto.vehicle;
+using Application.Features.Availability.Command;
+using Application.Features.Vehicle.Command;
+using AutoMapper;
 using Domain.Entities;
+using Domain.Enums;
 
 namespace CarRentalApi.Mapping
 {

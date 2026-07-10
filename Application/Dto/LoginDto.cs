@@ -1,6 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
-namespace CarRentalApi.Dto
+namespace Application.Dto.User
 {
     public class LoginDto
     {

@@ -17,7 +17,7 @@ namespace Domain.Abstraction
         Task<bool> HasOverlappingAvailabilityAsync(int vehicleId, DateTime startDate,DateTime endDate, CancellationToken cancellationToken = default);
         Task<Result<bool>> DeleteAvailabilityAsync(int id, string requestingUserId,CancellationToken ct = default);
         //Task<bool> AvailabilityExistsAsync(string ownerId, int vehicleId);
-       Task<Availability> GetAvailabilityByVehicleIdAsync(int vehicleId,int id,CancellationToken ct = default);
+    Task<Availability?> GetAvailabilityByVehicleIdAsync(int vehicleId,int id,CancellationToken ct = default);
         Task<bool> ExistsAsync(int id);
     }
 }

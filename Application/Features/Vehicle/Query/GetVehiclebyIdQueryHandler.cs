@@ -1,10 +1,9 @@
-﻿
+
 using Application.Dto.vehicle;
 using AutoMapper;
 using Domain.Abstraction;
 using FluentResults;
 using MediatR;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Application.Features.Vehicle
 {

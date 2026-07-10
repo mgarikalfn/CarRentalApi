@@ -1,5 +1,5 @@
-﻿using CarRentalApi.Dto.vehicle;
-using CarRentalApi.Entities;
+﻿using Application.Dto.vehicle;
+using Domain.Entities;
 
 namespace CarRentalApi.Extensions
 {

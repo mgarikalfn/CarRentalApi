@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using Domain.Abstraction;
+﻿using Domain.Abstraction;
 using Domain.Entities;
 using FluentResults;
 using Infrastructure.Data;
@@ -15,10 +14,6 @@ namespace Infrastructure.Repositories
         {
             _context = context;
         }
-        public Task<bool> AvailabilityExistsAsync(string licensePlate)
-        {
-            throw new NotImplementedException();
-        }
 
         public async Task<int> CreateAvailabilityRepository(Availability availability)
         {
@@ -27,48 +22,44 @@ namespace Infrastructure.Repositories
             return availability.Id;
         }
 
-        public Task<Result<bool>> DeleteAvailabilityAsync(int id, string requestingUserId)
+        public async Task<Availability?> GetAvailabilityByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            return await _context.Availabilities
+                .FirstOrDefaultAsync(a => a.Id == id);
         }
 
-        public Task<bool> ExistsAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Availability?> GetAvailabilityByIdAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-
-     
-
-        public async Task<bool> HasOverlappingAvailabilityAsync(int vehicleId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken)
+        public async Task<bool> HasOverlappingAvailabilityAsync(int vehicleId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
         {
             return await _context.Availabilities
                 .Where(a => a.VehicleId == vehicleId)
                 .AnyAsync(a => a.StartDate < endDate && a.EndDate > startDate, cancellationToken);
         }
 
-        async Task<Result<bool>> IAvailabilityRepository.DeleteAvailabilityAsync(Availability availability)
+        public async Task<Result<bool>> DeleteAvailabilityAsync(int id, string requestingUserId, CancellationToken ct = default)
         {
-             _context.Availabilities.Remove(availability);
-            await _context.SaveChangesAsync();
-            return Result<bool>
+            var availability = await _context.Availabilities
+                .FirstOrDefaultAsync(a => a.Id == id, ct);
 
+            if (availability == null)
+            {
+                return Result.Fail<bool>("Availability not found");
+            }
+
+            _context.Availabilities.Remove(availability);
+            await _context.SaveChangesAsync(ct);
+
+            return Result.Ok(true);
         }
 
-        Task<Result<bool>> IAvailabilityRepository.DeleteAvailabilityAsync(int id, string requestingUserId, CancellationToken ct)
-        {
-            throw new NotImplementedException();
-        }
-
-        async Task<Availability> IAvailabilityRepository.GetAvailabilityByVehicleIdAsync(int vehicleId, int id, CancellationToken cancellationToken)
+        public async Task<Availability?> GetAvailabilityByVehicleIdAsync(int vehicleId, int id, CancellationToken ct = default)
         {
             return await _context.Availabilities
-                 .FirstOrDefaultAsync(a => a.Id == id && a.VehicleId == vehicleId, cancellationToken);
+                .FirstOrDefaultAsync(a => a.Id == id && a.VehicleId == vehicleId, ct);
+        }
+
+        public async Task<bool> ExistsAsync(int id)
+        {
+            return await _context.Availabilities.AnyAsync(a => a.Id == id);
         }
     }
 }

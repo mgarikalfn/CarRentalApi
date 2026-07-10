@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using CarRentalApi.Data;
-using CarRentalApi.Dto.Booking;
-using CarRentalApi.Entities;
+using Application.Dto.Booking;
+using Domain.Entities;
+using Domain.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,9 +14,9 @@ namespace CarRentalApi.Controllers
     public class BookingsController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RentalDbContext _context;
+        private readonly Infrastructure.Data.RentalDbContext _context;
         private readonly IMapper _mapper;
-        public BookingsController(UserManager<ApplicationUser> userManager,RentalDbContext context, IMapper mapper)
+        public BookingsController(UserManager<ApplicationUser> userManager,Infrastructure.Data.RentalDbContext context, IMapper mapper)
         {
             _userManager = userManager;
             _context = context;

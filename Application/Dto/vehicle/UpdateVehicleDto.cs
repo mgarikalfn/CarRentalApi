@@ -1,6 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
-namespace CarRentalApi.Dto.vehicle
+namespace Application.Dto.vehicle
 {
     public class UpdateVehicleDto
     {

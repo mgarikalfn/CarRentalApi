@@ -1,12 +1,12 @@
-﻿using System.Security.Claims;
-using AutoMapper;
-using CarRentalApi.Application.Vehicle.command;
-using CarRentalApi.Application.Vehicle.query;
-using CarRentalApi.Data;
-using CarRentalApi.Dto.vehicle;
-using CarRentalApi.Entities;
+using System.Security.Claims;
+using Application.Dto.vehicle;
 using CarRentalApi.Extensions;
-using CarRentalApi.Service;
+using Application.Features.Vehicle.Command;
+using Application.Features.Vehicle;
+using AutoMapper;
+using Infrastructure.Data;
+using Domain.Entities;
+using Domain.Services.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -56,16 +56,15 @@ public class VehiclesController : ControllerBase
 
     [HttpGet("{id}")]
     [AllowAnonymous]
-    public async Task<ActionResult<Vehicle>> GetVehicle(int id)
+    public async Task<ActionResult<VehicleDto>> GetVehicle(int id)
     {
-        var command = new GetVehicleByIdCommand
+        var command = new GetVehicleByIdQuery
         {
             Id = id
         };
 
         var result = await _mediator.Send(command);
-        if (result == null) return NotFound();
-        return Ok(result);
+        return result.IsSuccess ? Ok(result.Value) : NotFound(result.Errors);
     }
     [HttpPut("{id}")]
     [Authorize]

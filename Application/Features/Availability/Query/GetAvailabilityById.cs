@@ -1,10 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
+using Application.Dto.Availablity;
+using FluentResults;
 using MediatR;
-using Microsoft.AspNetCore.Mvc;
 
-namespace CarRentalApi.Application.Availability.Query
+namespace Application.Features.Availability.Query
 {
-    public class GetAvailabilityById:IRequest<ActionResult>
+    public class GetAvailabilityById : IRequest<Result<List<AvailabilityDto>>>
     {
         [Required]
         public int VehicleId { get; set; }

@@ -1,12 +1,13 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Domain.Services.Interfaces;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging; // Add this using directive to resolve IWebHostEnvironment
+using Microsoft.Extensions.Logging;
 namespace Infrastructure.Services
 {
     public class FileStorageService : IFileStorageService

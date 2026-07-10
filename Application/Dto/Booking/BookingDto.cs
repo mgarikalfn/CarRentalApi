@@ -1,8 +1,8 @@
-﻿using CarRentalApi.Dto.User;
-using CarRentalApi.Dto.vehicle;
-using CarRentalApi.Entities;
+using Application.Dto.User;
+using Application.Dto.vehicle;
+using Domain.Enums;
 
-namespace CarRentalApi.Dto.Booking
+namespace Application.Dto.Booking
 {
     public class BookingDto
     {

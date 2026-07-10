@@ -1,4 +1,6 @@
-﻿namespace CarRentalApi.Dto.vehicle
+using Microsoft.AspNetCore.Http;
+
+namespace Application.Dto.vehicle
 {
     public class UploadVehicleImageDto
     {

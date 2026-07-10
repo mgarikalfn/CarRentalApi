@@ -1,4 +1,4 @@
-﻿using CarRentalApi.Entities;
+﻿using Domain.Entities;
 
 namespace CarRentalApi.Service
 {

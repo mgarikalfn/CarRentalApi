@@ -1,4 +1,4 @@
-﻿namespace CarRentalApi.Dto.vehicle
+namespace Application.Dto.vehicle
 {
     
     public class VehicleFilterDto

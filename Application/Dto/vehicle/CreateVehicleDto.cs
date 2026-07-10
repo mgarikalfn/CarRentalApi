@@ -1,7 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-using CarRentalApi.Entities;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
-namespace CarRentalApi.Dto.vehicle
+namespace Application.Dto.vehicle
 {
     public class CreateVehicleDto
     {

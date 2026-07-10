@@ -1,6 +1,6 @@
-﻿using CarRentalApi.Entities;
+using Domain.Enums;
 
-namespace CarRentalApi.Dto.Availablity
+namespace Application.Dto.Availablity
 {
     public class CreateAvailabilityDto
     {

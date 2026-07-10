@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
-using CarRentalApi.Data;
-using CarRentalApi.Dto.vehicle;
-using CarRentalApi.Entities;
-using CarRentalApi.Service;
+using Application.Dto.vehicle;
+using Domain.Entities;
+using Domain.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,12 +10,12 @@ using Microsoft.EntityFrameworkCore;
 public class VehicleImagesController : ControllerBase
 {
     private readonly IFileStorageService _fileStorage;
-    private readonly RentalDbContext _context;
+    private readonly Infrastructure.Data.RentalDbContext _context;
     private readonly IMapper _mapper;
 
     public VehicleImagesController(
         IFileStorageService fileStorage,
-        RentalDbContext context,
+        Infrastructure.Data.RentalDbContext context,
         IMapper mapper)
     {
         _fileStorage = fileStorage;

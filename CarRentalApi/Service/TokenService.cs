@@ -1,5 +1,5 @@
-﻿using CarRentalApi.Entities;
-using CarRentalApi.Service;
+﻿using CarRentalApi.Service;
+using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;

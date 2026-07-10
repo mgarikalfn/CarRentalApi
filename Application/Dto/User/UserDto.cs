@@ -1,4 +1,4 @@
-﻿namespace CarRentalApi.Dto.User
+namespace Application.Dto.User
 {
     public class UserDto
     {

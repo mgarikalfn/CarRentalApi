@@ -1,13 +1,12 @@
-﻿using CarRentalApi.Application.Availability.Query;
-using CarRentalApi.Data;
-using CarRentalApi.Dto.Availablity;
-using CarRentalApi.Entities;
+﻿using Application.Features.Availability.Command;
+using Application.Features.Availability.Query;
+using Application.Dto.Availablity;
+using Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MediatR;
-using CarRentalApi.Application.Availability.Command;
 using Microsoft.AspNetCore.Identity;
 
 namespace CarRentalApi.Controllers
@@ -16,18 +15,18 @@ namespace CarRentalApi.Controllers
     [ApiController]
     public class AvailabilitesController : ControllerBase
     {
-        private readonly RentalDbContext _context;
+        private readonly Infrastructure.Data.RentalDbContext _context;
         private readonly IMediator _mediator;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public AvailabilitesController(RentalDbContext context, IMediator mediator, UserManager<ApplicationUser> userManager)
+        public AvailabilitesController(Infrastructure.Data.RentalDbContext context, IMediator mediator, UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _mediator = mediator;
             _userManager = userManager;
         }
         [HttpGet("{id}")]
-        public async Task<ActionResult<IEnumerable<Availability>>> GetAvailabilities(int id, [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
+        public async Task<ActionResult<IEnumerable<AvailabilityDto>>> GetAvailabilities(int id, [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
         {
            var command = new GetAvailabilityById
            {
@@ -38,13 +37,13 @@ namespace CarRentalApi.Controllers
 
             var result = await _mediator.Send(command);
 
-            return result;
+            return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Errors.Select(e => e.Message));
            
         }
     
 
     [HttpPost("{vehicleId}")]
-        public async Task<ActionResult<Availability>> CreateAvailability([FromRoute] int vehicleId, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+        public async Task<ActionResult<int>> CreateAvailability([FromRoute] int vehicleId, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         {
             var user = await _userManager.GetUserAsync(User);
             if(user == null) { return Unauthorized();
@@ -60,7 +59,7 @@ namespace CarRentalApi.Controllers
             var result = await _mediator.Send(command);
 
            
-            return Ok(result);
+            return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Errors.Select(e => e.Message));
                
         }
 
@@ -74,13 +73,7 @@ namespace CarRentalApi.Controllers
             };
             var result = await _mediator.Send(command);
 
-            return result switch
-            {
-                1 => Ok(result),
-                2 => BadRequest("availability status is already booked"),
-                -1 => BadRequest("vehicle not found"),
-                -2 => BadRequest("availability not found")
-            };
+            return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Errors.Select(e => e.Message));
         }
     }
 }

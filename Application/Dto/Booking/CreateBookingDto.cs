@@ -1,6 +1,4 @@
-﻿using CarRentalApi.Entities;
-
-namespace CarRentalApi.Dto.Booking
+namespace Application.Dto.Booking
 {
     public class CreateBookingDto
     {
