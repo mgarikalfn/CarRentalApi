@@ -1,26 +1,35 @@
-﻿
-
+﻿using Domain.Enums;
 using Microsoft.AspNetCore.Identity;
+namespace Domain.Entities;
 
-namespace Domain.Entities
+    public class ApplicationUser : IdentityUser
 {
-    public class ApplicationUser: IdentityUser
-    {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string? DriverLicenseNumber { get; set; }
-        public DateTime? DriverLicenseExpiryDate { get; set; }
-        public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;
-        public bool IsDriverLicenseVerified { get; set; }
-        public DateTime? DriverLicenseVerifiedDate { get; set; }
+    public string FirstName { get; private set; } = string.Empty;
+    public string LastName { get; private set; } = string.Empty;
 
-        // Navigation properties
+    public UserRole Role {get; private set;}= UserRole.Renter;
 
-        public ICollection<Vehicle> OwnedVehicles { get; set; }
-        public ICollection<Booking> Bookings { get; set; }
-        public ICollection<Review> GivenReviews { get; set; }
-        public ICollection<Review> ReceivedReviews { get; set; }
-        public ICollection<Payment> Payments { get; set; }
-        public ICollection<DamageReport> ReportedDamages { get; set; }
-    }
+    public UserStatus Status {get; private set;} = UserStatus.Active;
+
+    public string? ProfilePhotoUrl{get; private set;}
+
+    public DateTime CreatedAt { get; private set; }
+    public DateTime? LastModifiedAt { get; private set; }
+
+    public ICollection<VerificationRecord> verificationRecords{get; private set;} = new List<VerificationRecord>();
+    public ICollection<Vehicle> OwnedVehicles { get; private set; }
+        = new List<Vehicle>();
+
+    public ICollection<Booking> Bookings { get; private set; }
+        = new List<Booking>();
+
+    public ICollection<Payment> Payments { get; private set; }
+        = new List<Payment>();
+
+    public ICollection<Review> GivenReviews { get; private set; }
+        = new List<Review>();
+
+    public ICollection<Review> ReceivedReviews { get; private set; }
+        = new List<Review>();
 }
+    
