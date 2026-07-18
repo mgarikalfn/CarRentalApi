@@ -1,6 +1,6 @@
 ﻿using Domain.Common;
 
-namespace Domain.Entities;
+namespace Domain.Entities.Vehicle;
 
 public class Vehicle : AggregateRoot
 {

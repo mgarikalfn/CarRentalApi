@@ -15,6 +15,6 @@ namespace Domain.Entities
         public DateTime EndDate { get; set; }
         public AvailabilityStatus Status { get; set; } // Available, Blocked, Booked
 
-        public Vehicle Vehicle { get; set; }
+        public Vehicle.Vehicle Vehicle { get; set; }
     }
 }
