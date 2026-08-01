@@ -27,9 +27,12 @@ public class Vehicle : AggregateRoot
     // DamageReports are separate aggregate roots that reference this
     // Vehicle by VehicleId — they are NOT held here, to keep this aggregate
     // cheap to load and to avoid ambiguity about where they're mutated from.
-    private readonly List<VehiclePhoto> _photos = [];
+    private readonly List<VehiclePhoto> _photos = new();
     public IReadOnlyCollection<VehiclePhoto> Photos => _photos.AsReadOnly();
 
+    private readonly List<Availability> _availability = new();
+    public IReadOnlyCollection<Availability> Availability => _availability.AsReadOnly();
+    
     private const int MaxPhotos = 10;
 
     private Vehicle() { } // EF Core
@@ -144,12 +147,12 @@ public class Vehicle : AggregateRoot
 
     // ----- Photos -----
 
-    public void AddPhoto(string url, int displayOrder)
+    public void AddPhoto(VehiclePhoto photo)
     {
         if (_photos.Count >= MaxPhotos)
             throw new DomainException($"Only {MaxPhotos} photos are allowed per vehicle.");
 
-        _photos.Add(new VehiclePhoto(Id, url, displayOrder));
+        _photos.Add(photo);
     }
 
     public void RemovePhoto(Guid photoId)

@@ -8,8 +8,7 @@ namespace Domain.Enums
 {
     public enum AvailabilityStatus
     {
-        Available,
-        Blocked,
-        Booked
+        Active,
+        Cancelled
     }
 }
