@@ -1,5 +1,6 @@
-﻿using Domain.Entities;
+﻿    using Domain.Entities;
 using Domain.Common;
+using Domain.Entities.Vehicle;
 
 
 namespace Domain.Abstraction

@@ -8,8 +8,9 @@ namespace Domain.Enums
 {
     public enum PaymentMethod
     {
-        CreditCard,
-        PayPal,
-        BankTransfer
+        Cash = 1,
+        Card = 2,
+        BankTransfer = 3,
+        MobileMoney = 4
     }
 }
