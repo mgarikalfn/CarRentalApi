@@ -1,3 +1,5 @@
+using MediatR;
+
 namespace Domain.Common;
 
 /// <summary>
@@ -6,7 +8,7 @@ namespace Domain.Common;
 /// e.g. VehicleListedEvent, BookingCompletedEvent). Aggregates raise these
 /// without knowing or caring who — if anyone — reacts to them.
 /// </summary>
-public interface IDomainEvent
+public interface IDomainEvent :INotification
 {
     DateTime OccurredOn => DateTime.UtcNow;
 }

@@ -60,13 +60,13 @@ namespace Domain.Entities;
         private set => _lastModifiedAt = value;
     }
 
-    public ICollection<VerificationRecord> verificationRecords
+    public ICollection<VerificationRecord> VerificationRecords
     {
         get => _verificationRecords;
         private set => _verificationRecords = value;
     }
 
-    public ICollection<Vehicle> OwnedVehicles
+    public ICollection<Vehicle.Vehicle> OwnedVehicles
     {
         get => _ownedVehicles;
         private set => _ownedVehicles = value;
