@@ -68,7 +68,10 @@ public class VehiclePhoto : Entity
             isPrimary);
     }
 
-
+    internal void RemovePrimary()
+    {
+        IsPrimary=false;
+    }
 
     public void SetAsPrimary()
     {

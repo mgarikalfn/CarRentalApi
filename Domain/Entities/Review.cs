@@ -5,16 +5,13 @@ namespace Domain.Entities;
 
 public class Review : AggregateRoot
 {
-    public Guid RentalId { get; private set; }
-
+    public Guid BookingId { get; private set; }
     public Guid VehicleId { get; private set; }
-
-
+    
     public Guid ReviewerId { get; private set; }
-
-    public Guid ReceiverId { get; private set; }
-
-
+    
+    public Guid RevieweeId { get; private set; }
+    
     public int Rating { get; private set; }
 
     public string Comment { get; private set; } = string.Empty;
@@ -33,10 +30,10 @@ public class Review : AggregateRoot
 
 
     private Review(
-        Guid rentalId,
+        Guid bookingId,
         Guid vehicleId,
         Guid reviewerId,
-        Guid receiverId,
+        Guid revieweeId,
         int rating,
         string comment)
     {
@@ -48,13 +45,13 @@ public class Review : AggregateRoot
         }
 
 
-        RentalId = rentalId;
+        BookingId = bookingId;
 
         VehicleId = vehicleId;
 
         ReviewerId = reviewerId;
 
-        ReceiverId = receiverId;
+        RevieweeId = revieweeId;
 
 
         Rating = rating;
@@ -70,14 +67,14 @@ public class Review : AggregateRoot
 
 
     public static Review Create(
-        Guid rentalId,
+        Guid bookingId,
         Guid vehicleId,
         Guid reviewerId,
-        Guid receiverId,
+        Guid revieweeId,
         int rating,
         string comment)
     {
-        if(reviewerId == receiverId)
+        if(reviewerId == revieweeId)
         {
             throw new DomainException(
                 "User cannot review themselves");
@@ -85,10 +82,10 @@ public class Review : AggregateRoot
 
 
         return new Review(
-            rentalId,
+            bookingId,
             vehicleId,
             reviewerId,
-            receiverId,
+            revieweeId,
             rating,
             comment);
     }

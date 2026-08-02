@@ -5,7 +5,7 @@ namespace Domain.Entities.Vehicle;
 public class Vehicle : AggregateRoot
 {
     public Guid OwnerId { get; private set; }
-
+    
     public string Title { get; private set; } = string.Empty;
     public string Description { get; private set; } = string.Empty;
 
@@ -29,9 +29,6 @@ public class Vehicle : AggregateRoot
     // cheap to load and to avoid ambiguity about where they're mutated from.
     private readonly List<VehiclePhoto> _photos = new();
     public IReadOnlyCollection<VehiclePhoto> Photos => _photos.AsReadOnly();
-
-    private readonly List<Availability> _availability = new();
-    public IReadOnlyCollection<Availability> Availability => _availability.AsReadOnly();
     
     private const int MaxPhotos = 10;
 
@@ -151,7 +148,13 @@ public class Vehicle : AggregateRoot
     {
         if (_photos.Count >= MaxPhotos)
             throw new DomainException($"Only {MaxPhotos} photos are allowed per vehicle.");
-
+        if(photo.IsPrimary)
+        {
+            foreach(var existing in _photos)
+            {
+                existing.RemovePrimary();
+            }
+        }
         _photos.Add(photo);
     }
 

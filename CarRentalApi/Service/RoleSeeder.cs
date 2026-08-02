@@ -6,13 +6,18 @@ namespace CarRentalApi.Service
     {
         private static readonly string[] Roles = ["Admin", "Owner", "Renter"];
 
-        public static async Task SeedAsync(RoleManager<IdentityRole> roleManager)
+        public static async Task SeedAsync(RoleManager<IdentityRole<Guid>> roleManager)
         {
             foreach (var role in Roles)
             {
                 if (!await roleManager.RoleExistsAsync(role))
                 {
-                    await roleManager.CreateAsync(new IdentityRole(role));
+                    await roleManager.CreateAsync(new IdentityRole<Guid>
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = role,
+                        NormalizedName = role.ToUpperInvariant()
+                    });
                 }
             }
         }

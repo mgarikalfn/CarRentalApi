@@ -2,11 +2,12 @@
 using Domain.Common;
 using Domain.Entities;
 using Domain.Entities.Vehicle;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 public sealed class RentalDbContext
-    : IdentityDbContext<ApplicationUser>
+    : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
 {
     private readonly IDomainEventDispatcher _dispatcher;
 

@@ -100,6 +100,7 @@ public class Payment : AggregateRoot
         Status = PaymentStatus.Completed;
 
         CompletedAt = DateTime.UtcNow;
+        
     }
 
 

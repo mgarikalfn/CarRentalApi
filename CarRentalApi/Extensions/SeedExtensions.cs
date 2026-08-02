@@ -12,7 +12,7 @@ public static class SeedExtensions
     var services = scope.ServiceProvider;
     try
     {
-        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
         await RoleSeeder.SeedAsync(roleManager);
     }
     catch (Exception ex)

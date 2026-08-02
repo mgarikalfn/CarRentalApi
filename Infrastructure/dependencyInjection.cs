@@ -18,7 +18,7 @@ public static class DependencyInjection
                configuration.GetConnectionString(
                    "DefaultConnection")));
 
-        services.AddIdentity<ApplicationUser, IdentityRole>()
+        services.AddIdentity<ApplicationUser, IdentityRole<Guid>>()
             .AddEntityFrameworkStores<RentalDbContext>()
             .AddDefaultTokenProviders();
 
