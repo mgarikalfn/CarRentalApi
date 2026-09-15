@@ -1,6 +1,10 @@
 namespace Domain.Common;
 
-public abstract class AggregateRoot : AuditableEntity
+/// <summary>
+/// Base class for aggregate roots. Provides domain event tracking and dispatch.
+/// Implements IHasDomainEvents so AppDbContext can discover and dispatch events.
+/// </summary>
+public abstract class AggregateRoot : AuditableEntity, IHasDomainEvents
 {
     private readonly List<IDomainEvent> _domainEvents = [];
 
@@ -13,7 +17,7 @@ public abstract class AggregateRoot : AuditableEntity
         _domainEvents.Add(domainEvent);
     }
 
-    // Called by infrastructure (EF Core SaveChanges interceptor, typically)
+    // Called by infrastructure (AppDbContext.SaveChangesAsync override)
     // AFTER the events have been dispatched, so the same event doesn't fire
     // twice if this aggregate is saved again later.
     public void ClearDomainEvents()
