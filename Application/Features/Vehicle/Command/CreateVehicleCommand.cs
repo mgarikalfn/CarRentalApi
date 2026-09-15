@@ -1,31 +1,30 @@
-﻿
-
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Http;
+using Application.Common;
 
 namespace Application.Features.Vehicle.Command
 {
-    public class CreateVehicleCommand:IRequest<Domain.Common.Result<int>>
+    public class CreateVehicleCommand : IRequest<Result<int>>
     {
-        public string OwnerId { get; set; }
-        public string Make { get; set; }
+        public string OwnerId { get; set; } = string.Empty;
+        public string Make { get; set; } = string.Empty;
 
-        public string Model { get; set; }
+        public string Model { get; set; } = string.Empty;
 
         public int Year { get; set; }
 
-        public string LicensePlate { get; set; }
+        public string LicensePlate { get; set; } = string.Empty;
 
-        public string Color { get; set; }
+        public string Color { get; set; } = string.Empty;
 
         public int Mileage { get; set; }
-        public string TransmissionType { get; set; }
+        public string TransmissionType { get; set; } = string.Empty;
 
-        public string FuelType { get; set; }
+        public string FuelType { get; set; } = string.Empty;
 
         public int Seats { get; set; }
 
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
        
         public decimal DailyPrice { get; set; }
