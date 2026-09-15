@@ -1,80 +1,25 @@
 using Domain.Common;
-using Domain.Enums;
 
 namespace Domain.Entities;
 
-public class VehiclePhoto : Entity
+public class VehiclePhoto : AuditableEntity
 {
     public Guid VehicleId { get; private set; }
-
-
     public string Url { get; private set; } = string.Empty;
+    public int DisplayOrder { get; private set; }
 
+    private VehiclePhoto() { } // EF Core
 
-    public VehiclePhotoType Type { get; private set; }
-
-
-    public bool IsPrimary { get; private set; }
-
-
-    public DateTime UploadedAt { get; private set; }
-
-
-
-    private VehiclePhoto()
+    internal VehiclePhoto(Guid vehicleId, string url, int displayOrder)
     {
+        if (vehicleId == Guid.Empty)
+            throw new DomainException("VehicleId is required.");
 
-    }
-
-
-
-    private VehiclePhoto(
-        Guid vehicleId,
-        string url,
-        VehiclePhotoType type,
-        bool isPrimary)
-    {
-
-        if(string.IsNullOrWhiteSpace(url))
-        {
-            throw new DomainException(
-                "Photo url is required");
-        }
-
+        if (string.IsNullOrWhiteSpace(url))
+            throw new DomainException("Photo URL is required.");
 
         VehicleId = vehicleId;
-
-        Url = url;
-
-        Type = type;
-
-        IsPrimary = isPrimary;
-
-        UploadedAt = DateTime.UtcNow;
-    }
-
-
-
-    public static VehiclePhoto Create(
-        Guid vehicleId,
-        string url,
-        VehiclePhotoType type,
-        bool isPrimary = false)
-    {
-        return new VehiclePhoto(
-            vehicleId,
-            url,
-            type,
-            isPrimary);
-    }
-
-    internal void RemovePrimary()
-    {
-        IsPrimary=false;
-    }
-
-    public void SetAsPrimary()
-    {
-        IsPrimary = true;
+        Url = url.Trim();
+        DisplayOrder = displayOrder;
     }
 }
