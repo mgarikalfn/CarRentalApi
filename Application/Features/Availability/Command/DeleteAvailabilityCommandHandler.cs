@@ -1,7 +1,6 @@
-
+using Application.Common;
 using Domain.Abstraction;
 using Domain.Enums;
-using FluentResults;
 using MediatR;
 
 namespace Application.Features.Availability.Command
@@ -22,27 +21,27 @@ namespace Application.Features.Availability.Command
         public async Task<Result<int>> Handle(DeleteAvailabilityCommand request, CancellationToken cancellationToken)
         {
             if (request == null)
-                return Result.Fail<int>("Request cannot be null");
+                return Result<int>.Failure("Request cannot be null");
 
             var vehicle = await _vehicleRepository.GetVehicleByIdAsync(request.VehicleId);
             if (vehicle == null)
-                return Result.Fail<int>("Vehicle doesn't exist");
+                return Result<int>.Failure("Vehicle doesn't exist");
 
             var availability = await _availabilityRepository.GetAvailabilityByVehicleIdAsync(
                 request.Id, request.VehicleId, cancellationToken);
 
             if (availability == null)
-                return Result.Fail<int>("Availability can't be found");
+                return Result<int>.Failure("Availability can't be found");
 
-            if (availability.Status != AvailabilityStatus.Blocked)
-                return Result.Fail<int>("Can't remove availability at this stage");
+            if (availability.Status != AvailabilityStatus.Active)
+                return Result<int>.Failure("Can't remove availability at this stage");
 
-            var deleteResult = await _availabilityRepository.DeleteAvailabilityAsync(
+            var deleteSuccess = await _availabilityRepository.DeleteAvailabilityAsync(
                 request.Id, string.Empty, cancellationToken);
 
-            return deleteResult.IsSuccess
-                ? Result.Ok(request.Id)
-                : Result.Fail<int>("Failed to delete availability");
+            return deleteSuccess
+                ? Result<int>.Success(request.Id)
+                : Result<int>.Failure("Failed to delete availability");
         }
     }
 }
