@@ -1,8 +1,8 @@
+using Application.Common;
 using Application.Dto.Booking;
 using Domain.Abstraction;
 using Domain.Entities;
 using Domain.Enums;
-using FluentResults;
 using MediatR;
 
 namespace Application.Features.Booking.Command
@@ -18,29 +18,30 @@ namespace Application.Features.Booking.Command
 
         public async Task<Result<BookingDto>> Handle(RejectBookingCommand request, CancellationToken cancellationToken)
         {
-            var booking = await _bookingRepository.GetByIdWithVehicleAsync(request.BookingId);
+            var booking = await _bookingRepository.GetByIdAsync(request.BookingId);
 
             if (booking == null)
             {
-                return Result.Fail("Booking not found.");
-            }
-
-            if (booking.Vehicle.OwnerId != request.OwnerId)
-            {
-                return Result.Fail("Unauthorized to reject this booking.");
+                return Result<BookingDto>.Failure("Booking not found.");
             }
 
             if (booking.Status != BookingStatus.Pending)
             {
-                return Result.Fail("Only pending bookings can be rejected.");
+                return Result<BookingDto>.Failure("Only pending bookings can be rejected.");
             }
 
-            booking.Status = BookingStatus.Rejected;
-            booking.UpdatedAt = DateTime.UtcNow;
+            booking.Reject(request.Reason ?? "No reason provided");
 
             await _bookingRepository.UpdateAsync(booking);
 
-            return Result.Ok(new BookingDto { Id = booking.Id, VehicleId = booking.VehicleId, StartDate = booking.StartDate, EndDate = booking.EndDate, Status = booking.Status });
+            return Result<BookingDto>.Success(new BookingDto 
+            { 
+                Id = booking.Id, 
+                VehicleId = booking.VehicleId, 
+                StartDate = booking.StartDate, 
+                EndDate = booking.EndDate, 
+                Status = booking.Status 
+            });
         }
     }
 }
