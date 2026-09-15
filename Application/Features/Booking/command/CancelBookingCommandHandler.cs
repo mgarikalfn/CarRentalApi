@@ -1,8 +1,8 @@
+using Application.Common;
 using Application.Dto.Booking;
 using Domain.Abstraction;
 using Domain.Entities;
 using Domain.Enums;
-using FluentResults;
 using MediatR;
 
 namespace Application.Features.Booking.Command
@@ -18,29 +18,35 @@ namespace Application.Features.Booking.Command
 
         public async Task<Result<BookingDto>> Handle(CancelBookingCommand request, CancellationToken cancellationToken)
         {
-            var booking = await _bookingRepository.GetByIdWithVehicleAsync(request.BookingId);
+            var booking = await _bookingRepository.GetByIdAsync(request.BookingId);
 
             if (booking == null)
             {
-                return Result.Fail("Booking not found.");
+                return Result<BookingDto>.Failure("Booking not found.");
             }
 
-            if (booking.RenterId != request.UserId && booking.Vehicle.OwnerId != request.UserId)
+            if (booking.RenterId != request.UserId)
             {
-                return Result.Fail("Unauthorized to cancel this booking.");
+                return Result<BookingDto>.Failure("Unauthorized to cancel this booking.");
             }
 
-            if (booking.Status != BookingStatus.Pending && booking.Status != BookingStatus.Confirmed)
+            if (booking.Status != BookingStatus.Pending && booking.Status != BookingStatus.Approved)
             {
-                return Result.Fail("Booking cannot be cancelled in its current status.");
+                return Result<BookingDto>.Failure("Booking cannot be cancelled in its current status.");
             }
 
-            booking.Status = BookingStatus.Cancelled;
-            booking.UpdatedAt = DateTime.UtcNow;
+            booking.Cancel(request.Reason ?? "Cancelled by renter");
 
             await _bookingRepository.UpdateAsync(booking);
 
-            return Result.Ok(new BookingDto { Id = booking.Id, VehicleId = booking.VehicleId, StartDate = booking.StartDate, EndDate = booking.EndDate, Status = booking.Status });
+            return Result<BookingDto>.Success(new BookingDto 
+            { 
+                Id = booking.Id, 
+                VehicleId = booking.VehicleId, 
+                StartDate = booking.StartDate, 
+                EndDate = booking.EndDate, 
+                Status = booking.Status 
+            });
         }
     }
 }
