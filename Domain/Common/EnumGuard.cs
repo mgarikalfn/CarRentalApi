@@ -20,7 +20,7 @@ public static class EnumGuard
         if (!Enum.IsDefined(typeof(TEnum), value))
         {
             var name = fieldName ?? typeof(TEnum).Name;
-            throw new InvalidOperationException($"Invalid {name} value: '{value}'.");
+            throw new DomainException($"Invalid {name} value: '{value}'.");
         }
 
         return value;
