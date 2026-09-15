@@ -1,12 +1,13 @@
+using Application.Common;
 using Application.Dto.Booking;
-using FluentResults;
 using MediatR;
 
 namespace Application.Features.Booking.Command
 {
     public class CancelBookingCommand : IRequest<Result<BookingDto>>
     {
-        public int BookingId { get; set; }
-        public string UserId { get; set; }
+        public Guid BookingId { get; set; }
+        public Guid UserId { get; set; }
+        public string Reason { get; set; } = string.Empty;
     }
 }
