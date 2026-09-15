@@ -1,9 +1,9 @@
-﻿using Domain.Abstractions;
+﻿using Application.Common;
+using Domain.Abstractions;
 using Domain.Common;
 using MediatR;
 
 namespace Infrastructure.Events;
-
 
 public sealed class MediatrDomainEventDispatcher
     : IDomainEventDispatcher
@@ -19,11 +19,15 @@ public sealed class MediatrDomainEventDispatcher
         IEnumerable<IDomainEvent> events,
         CancellationToken cancellationToken = default)
     {
-        foreach(var domainEvent in events)
+        foreach (var domainEvent in events)
         {
-            await _mediator.Publish(
-                domainEvent,
-                cancellationToken);
+            // Wrap each domain event in DomainEventNotification<T>
+            // so MediatR can dispatch it to INotificationHandler<DomainEventNotification<T>>
+            var wrapperType = typeof(DomainEventNotification<>)
+                .MakeGenericType(domainEvent.GetType());
+            var notification = (INotification)Activator.CreateInstance(wrapperType, domainEvent)!;
+            
+            await _mediator.Publish(notification, cancellationToken);
         }
     }
 }
