@@ -1,6 +1,8 @@
 ﻿using Domain.Common;
 using Domain.Enums;
 
+namespace Domain.Entities;
+
 public class Availability : Entity
 {
     public Guid VehicleId { get; private set; }
