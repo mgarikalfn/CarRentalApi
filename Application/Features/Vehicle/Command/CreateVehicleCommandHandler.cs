@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Application.Common;
 using Domain.Abstraction;
 using Domain.Common;
 using Domain.Entities;
@@ -34,26 +35,39 @@ namespace Application.Features.Vehicle.Command
             if (await _vehicleRepository.VehicleExistsAsync(request.LicensePlate))
                 return Result<int>.Failure("Vehicle with this license plate already exists", "DUPLICATE_VEHICLE");
 
-            // 3. Map and process
-            var vehicle = _mapper.Map<Domain.Entities.Vehicle>(request);
+            // 3. Create vehicle with domain factory
+            var specification = new VehicleSpecification(
+                request.Make,
+                request.Model,
+                request.Year,
+                request.Color,
+                System.Enum.Parse<FuelType>(request.FuelType),
+                System.Enum.Parse<TransmissionType>(request.TransmissionType),
+                "UNKNOWN_VIN",
+                request.LicensePlate,
+                request.Seats);
 
+            var price = new Money(request.DailyPrice);
+
+            var vehicle = Vehicle.Create(
+                System.Guid.Parse(request.OwnerId),
+                request.Make + " " + request.Model,
+                request.Description ?? "",
+                specification,
+                price,
+                request.Mileage);
+
+            // 4. Add photos
             if (request.Images?.Count > 0)
             {
-                vehicle.Images = new List<VehicleImage>();
-
                 for (int i = 0; i < request.Images.Count; i++)
                 {
                     var imageUrl = await _fileStorageService.SaveVehicleImageAsync(request.Images[i]);
-                    vehicle.Images.Add(new VehicleImage
-                    {
-                        ImageUrl = imageUrl,
-                        IsPrimary = i == 0,
-                        DisplayOrder = i
-                    });
+                    vehicle.AddPhoto(imageUrl, i);
                 }
             }
 
-            // 4. Persist
+            // 5. Persist
             var vehicleId = await _vehicleRepository.CreateVehicleAsync(vehicle);
 
             return Result<int>.Success(vehicleId);
