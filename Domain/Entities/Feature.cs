@@ -3,16 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Domain.Entities.Vehicle;
 
-namespace Domain.Entities
+namespace Domain.Entities;
+
+public class Feature
 {
-    public class Feature
-    {
-        public int Id { get; set; }
-        public string Name { get; set; } // "GPS", "Sunroof", "Child Seat"
-        public string Icon { get; set; }
-
-        public ICollection<VehicleFeatures> VehicleFeatures { get; set; }
-    }
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty; // "GPS", "Sunroof", "Child Seat"
+    public string Icon { get; set; } = string.Empty;
 }
