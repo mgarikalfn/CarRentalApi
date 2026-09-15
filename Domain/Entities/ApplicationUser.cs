@@ -6,7 +6,7 @@ namespace Domain.Entities;
 
 public class ApplicationUser : IdentityUser<Guid>
 {
-    private readonly List<Vehicle.Vehicle> _ownedVehicles = [];
+    private readonly List<Vehicle> _ownedVehicles = [];
     private readonly List<Booking> _bookings = [];
     private readonly List<Payment> _payments = [];
     private readonly List<Review> _givenReviews = [];
@@ -60,7 +60,7 @@ public class ApplicationUser : IdentityUser<Guid>
 
     public TrustProfile TrustProfile { get; private set; } = null!;
 
-    public IReadOnlyCollection<Vehicle.Vehicle> OwnedVehicles => _ownedVehicles;
+    public IReadOnlyCollection<Vehicle> OwnedVehicles => _ownedVehicles;
 
     public IReadOnlyCollection<Booking> Bookings => _bookings;
 
