@@ -1,9 +1,9 @@
 using AutoMapper;
+using Application.Common;
 using Application.Dto.Booking;
 using Domain.Abstraction;
 using Domain.Entities;
 using Domain.Enums;
-using FluentResults;
 using MediatR;
 
 namespace Application.Features.Booking.Command
@@ -27,12 +27,12 @@ namespace Application.Features.Booking.Command
 
             if (vehicle == null)
             {
-                return Result.Fail("Vehicle not found");
+                return Result<BookingDto>.Failure("Vehicle not found");
             }
 
             if (vehicle.OwnerId == request.RenterId)
             {
-                return Result.Fail("You cannot book your own vehicle");
+                return Result<BookingDto>.Failure("You cannot book your own vehicle");
             }
 
             // Check for date conflicts
@@ -40,27 +40,27 @@ namespace Application.Features.Booking.Command
 
             if (isBooked)
             {
-                return Result.Fail("The vehicle is not available for the selected dates");
+                return Result<BookingDto>.Failure("The vehicle is not available for the selected dates");
             }
 
-            // Calculate total price
+            // Calculate total price using BookingPrice value object
             var days = (request.EndDate - request.StartDate).Days;
-            var totalPrice = days * vehicle.DailyPrice;
+            var dailyPrice = vehicle.Price.DailyPrice;
+            var totalPrice = days * dailyPrice;
+            var bookingPrice = new BookingPrice(totalPrice, 0, 0, 0, 0, vehicle.Price.Currency);
 
-            var booking = new Domain.Entities.Booking
-            {
-                VehicleId = request.VehicleId,
-                RenterId = request.RenterId,
-                StartDate = request.StartDate,
-                EndDate = request.EndDate,
-                TotalPrice = totalPrice,
-                Status = BookingStatus.Pending,
-                CreatedAt = DateTime.UtcNow
-            };
+            var booking = Domain.Entities.Booking.Create(
+                vehicle.Id,
+                request.RenterId,
+                request.StartDate,
+                request.EndDate,
+                request.PickUpLocation,
+                request.DropOffLocation,
+                bookingPrice);
 
             await _bookingRepository.AddAsync(booking);
 
-            return Result.Ok(_mapper.Map<BookingDto>(booking));
+            return Result<BookingDto>.Success(_mapper.Map<BookingDto>(booking));
         }
     }
 }
