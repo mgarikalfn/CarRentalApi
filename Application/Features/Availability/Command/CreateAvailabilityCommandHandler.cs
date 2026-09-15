@@ -1,15 +1,14 @@
-﻿
-using AutoMapper;
+﻿using AutoMapper;
+using Application.Common;
 using Domain.Abstraction;
 using Domain.Enums;
-using FluentResults;
 using MediatR;
 
 namespace Application.Features.Availability.Command
 {
     public class CreateAvailabilityCommandHandler : IRequestHandler<CreateAvailabilityCommand, Result<int>>
     {
-       private readonly IAvailabilityRepository _availabilityRepository;
+        private readonly IAvailabilityRepository _availabilityRepository;
         private readonly IVehicleRepository _vehicleRepository;
         private readonly IMapper _mapper;
 
@@ -20,36 +19,37 @@ namespace Application.Features.Availability.Command
             _mapper = mapper;
         }
 
-      
-         async Task<Result<int>> IRequestHandler<CreateAvailabilityCommand, Result<int>>.Handle(CreateAvailabilityCommand request, CancellationToken cancellationToken)
+        public async Task<Result<int>> Handle(CreateAvailabilityCommand request, CancellationToken cancellationToken)
         {
             if (request == null)
-                return Result.Fail<int>("Request cannot be null");
+                return Result<int>.Failure("Request cannot be null");
 
-           var vehicle = await _vehicleRepository.GetVehicleByIdAsync(request.VehicleId);
+            var vehicle = await _vehicleRepository.GetVehicleByIdAsync(request.VehicleId);
             if (vehicle == null)
-                return Result.Fail<int>("Vehicle doesn't exist");
+                return Result<int>.Failure("Vehicle doesn't exist");
+                
             if (vehicle.OwnerId != request.OwnerId)
-                return Result.Fail<int>("Unauthorized access");
+                return Result<int>.Failure("Unauthorized access");
 
             if (request.EndDate <= request.StartDate)
-                return Result.Fail<int>("End date must be after start date");
+                return Result<int>.Failure("End date must be after start date");
 
-            var isOverlapping = await _availabilityRepository.HasOverlappingAvailabilityAsync(request.VehicleId, request.StartDate, request.EndDate,cancellationToken);
+            var isOverlapping = await _availabilityRepository.HasOverlappingAvailabilityAsync(
+                request.VehicleId, request.StartDate, request.EndDate, cancellationToken);
 
-
-            if(isOverlapping)
+            if (isOverlapping)
             {
-                return Result.Fail<int>("Overlapping availability exists");
+                return Result<int>.Failure("Overlapping availability exists");
             }
 
-            var availability = _mapper.Map<Domain.Entities.Availability>(request);
-            availability.Status = AvailabilityStatus.Blocked;
+            var availability = Domain.Entities.Availability.Create(
+                request.VehicleId,
+                request.StartDate,
+                request.EndDate,
+                request.Type);
 
             var result = await _availabilityRepository.CreateAvailabilityRepository(availability);
-            return Result.Ok(result);
-
-
+            return Result<int>.Success(result);
         }
     }
 }
