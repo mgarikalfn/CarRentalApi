@@ -2,14 +2,32 @@
 
 namespace Domain.Entities;
 
-public record BookingCreatedEvent(Guid BookingId, Guid VehicleId, Guid RenterId) : IDomainEvent;
+public record BookingCreatedEvent(Guid BookingId, Guid VehicleId, Guid RenterId) : IDomainEvent
+{
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
-public record BookingApprovedEvent(Guid BookingId, Guid VehicleId, Guid RenterId) : IDomainEvent;
+public record BookingApprovedEvent(Guid BookingId, Guid VehicleId, Guid RenterId) : IDomainEvent
+{
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
-public record BookingRejectedEvent(Guid BookingId, string Reason) : IDomainEvent;
+public record BookingRejectedEvent(Guid BookingId, string Reason) : IDomainEvent
+{
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
-public record BookingCancelledEvent(Guid BookingId, string Reason) : IDomainEvent;
+public record BookingCancelledEvent(Guid BookingId, string Reason) : IDomainEvent
+{
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
-public record BookingActivatedEvent(Guid BookingId, Guid VehicleId) : IDomainEvent;
+public record BookingActivatedEvent(Guid BookingId, Guid VehicleId) : IDomainEvent
+{
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
 
-public record BookingCompletedEvent(Guid BookingId, Guid VehicleId, Guid RenterId) : IDomainEvent;
+public record BookingCompletedEvent(Guid BookingId, Guid VehicleId, Guid RenterId) : IDomainEvent
+{
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
+}
