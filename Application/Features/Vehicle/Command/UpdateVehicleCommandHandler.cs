@@ -1,8 +1,6 @@
-﻿
-
-using AutoMapper;
+﻿using AutoMapper;
+using Application.Common;
 using Domain.Abstraction;
-using FluentResults;
 using MediatR;
 
 namespace Application.Features.Vehicle.Command
@@ -14,30 +12,29 @@ namespace Application.Features.Vehicle.Command
        
         public UpdateVehicleCommandHandler(IMapper mapper, IVehicleRepository vehicleRepository)
         {
-            
             _mapper = mapper;
             _vehicleRepository = vehicleRepository;
         }
+        
         public async Task<Result<int>> Handle(UpdateVehicleCommand request, CancellationToken cancellationToken)
         {
             if (request == null)
-                return Result.Fail<int>("Request cannot be null").WithError("NULL_REQUEST");
+                return Result<int>.Failure("Request cannot be null", "NULL_REQUEST");
 
             var vehicle = await _vehicleRepository.GetVehicleByIdAsync(request.Id);
             if (vehicle == null)
-                return Result.Fail<int>("Vehicle not found").WithError("NOT_FOUND");
+                return Result<int>.Failure("Vehicle not found", "NOT_FOUND");
 
             if (vehicle.OwnerId != request.OwnerId)
-                return Result.Fail<int>("Unauthorized vehicle update").WithError("UNAUTHORIZED");
+                return Result<int>.Failure("Unauthorized vehicle update", "UNAUTHORIZED");
 
             _mapper.Map(request, vehicle);
-            var updateResult = await _vehicleRepository.UpdateVehicleAsync(vehicle);
+            var updateSuccess = await _vehicleRepository.UpdateVehicleAsync(vehicle);
 
-            if (updateResult.IsSuccess)
-                return Result.Ok(vehicle.Id);
+            if (updateSuccess)
+                return Result<int>.Success((int)vehicle.Id);
 
-            return Result.Fail<int>($"id{updateResult}").WithError("");
+            return Result<int>.Failure("Failed to update vehicle", "UPDATE_FAILED");
         }
-
     }
 }
