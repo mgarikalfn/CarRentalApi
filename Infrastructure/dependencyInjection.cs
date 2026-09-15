@@ -1,6 +1,8 @@
 using Domain.Abstraction;
+using Domain.Abstractions;
 using Domain.Entities;
 using Infrastructure.Data;
+using Infrastructure.Events;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -36,7 +38,8 @@ public static class DependencyInjection
         services.AddScoped<
             IAvailabilityRepository,
             AvailabilityRepository>();
-
+        
+        services.AddScoped<IDomainEventDispatcher, MediatrDomainEventDispatcher>();
         return services;
 
     }
