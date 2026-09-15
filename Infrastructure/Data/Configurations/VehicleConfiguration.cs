@@ -1,228 +1,156 @@
-using Domain.Entities.Vehicle;
+using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-
 namespace Infrastructure.Data.Configurations;
-
 
 public class VehicleConfiguration 
     : IEntityTypeConfiguration<Vehicle>
 {
-
     public void Configure(EntityTypeBuilder<Vehicle> builder)
     {
-
         builder.HasKey(x => x.Id);
-
 
         // Owner reference
         // No ApplicationUser navigation because DDD boundary
-
         builder.Property(x => x.OwnerId)
             .IsRequired();
-
-
 
         builder.Property(x => x.Title)
             .HasMaxLength(100)
             .IsRequired();
 
-
         builder.Property(x => x.Description)
             .HasMaxLength(1000);
-
-
 
         builder.Property(x => x.Status)
             .HasConversion<string>()
             .IsRequired();
 
-
-
         builder.Property(x => x.AverageRating)
-            .HasPrecision(3,2);
+            .HasPrecision(3, 2);
 
+        builder.Property(x => x.ReviewCount)
+            .IsRequired();
 
+        builder.Property(x => x.Mileage)
+            .IsRequired();
 
         // ============================
-        // Vehicle Specification
+        // Vehicle Specification (VO)
         // ============================
-
         builder.OwnsOne(
             x => x.Specification,
             specification =>
             {
-
-                specification.Property(x=>x.Brand)
+                specification.Property(x => x.Brand)
                     .HasColumnName("Brand")
                     .HasMaxLength(50)
                     .IsRequired();
 
-
-                specification.Property(x=>x.Model)
+                specification.Property(x => x.Model)
                     .HasColumnName("Model")
                     .HasMaxLength(50)
                     .IsRequired();
 
-
-                specification.Property(x=>x.Year)
+                specification.Property(x => x.Year)
                     .HasColumnName("Year")
                     .IsRequired();
 
-
-                specification.Property(x=>x.Color)
+                specification.Property(x => x.Color)
                     .HasColumnName("Color")
-                    .HasMaxLength(50);
+                    .HasMaxLength(50)
+                    .IsRequired();
 
+                specification.Property(x => x.FuelType)
+                    .HasConversion<string>()
+                    .IsRequired();
 
-                specification.Property(x=>x.FuelType)
-                    .HasConversion<string>();
+                specification.Property(x => x.Transmission)
+                    .HasConversion<string>()
+                    .IsRequired();
 
-
-                specification.Property(x=>x.Transmission)
-                    .HasConversion<string>();
-
-
-                specification.Property(x=>x.VIN)
+                specification.Property(x => x.VIN)
                     .HasColumnName("VIN")
                     .HasMaxLength(17)
                     .IsRequired();
 
-
-                specification.Property(x=>x.LicensePlate)
+                specification.Property(x => x.LicensePlate)
                     .HasColumnName("LicensePlate")
                     .HasMaxLength(15)
                     .IsRequired();
 
-
-                specification.Property(x=>x.SeatCount)
+                specification.Property(x => x.SeatCount)
                     .IsRequired();
-
             });
-
-
 
         // ============================
         // Money Value Object
         // ============================
-
-
         builder.OwnsOne(
-            x=>x.Price,
+            x => x.Price,
             money =>
             {
-
-                money.Property(x=>x.DailyPrice)
+                money.Property(x => x.DailyPrice)
                     .HasColumnName("DailyPrice")
-                    .HasPrecision(10,2);
+                    .HasPrecision(10, 2)
+                    .IsRequired();
 
-
-                money.Property(x=>x.Currency)
+                money.Property(x => x.Currency)
                     .HasColumnName("Currency")
                     .HasMaxLength(3)
                     .IsRequired();
-
             });
 
-
-
         // ============================
-        // GeoLocation
+        // GeoLocation Value Object
         // ============================
-
-
         builder.OwnsOne(
-            x=>x.Location,
+            x => x.Location,
             location =>
             {
-
-                location.Property(x=>x.Latitude)
+                location.Property(x => x.Latitude)
                     .HasColumnName("Latitude");
 
-
-                location.Property(x=>x.Longitude)
+                location.Property(x => x.Longitude)
                     .HasColumnName("Longitude");
 
-
-                location.Property(x=>x.City)
+                location.Property(x => x.City)
                     .HasColumnName("City")
                     .HasMaxLength(100);
-
             });
 
-
-
         // ============================
-        // Photos
+        // VehiclePhoto Collection
+        // (Owned Entity with Key)
         // ============================
-
-        builder.OwnsMany(
-            x=>x.Photos,
-            photo =>
-            {
-
-                photo.ToTable("VehiclePhotos");
-
-
-                photo.HasKey(x=>x.Id);
-
-
-                photo.Property(x=>x.Url)
-                    .HasMaxLength(500)
-                    .IsRequired();
-
-
-                photo.Property(x=>x.IsPrimary)
-                    .IsRequired();
-
-
-
-                photo.WithOwner()
-                    .HasForeignKey("VehicleId");
-
-            });
-
-
-
-        builder.HasIndex(x=>x.OwnerId);
-
-
-        builder.HasIndex(x=>x.Status);
-
-
-        builder.HasIndex(x=>x.AverageRating);
-        
         builder.OwnsMany(
             x => x.Photos,
             photo =>
             {
                 photo.ToTable("VehiclePhotos");
 
-
                 photo.HasKey(x => x.Id);
 
+                photo.Property(x => x.VehicleId)
+                    .IsRequired();
 
                 photo.Property(x => x.Url)
                     .HasMaxLength(500)
                     .IsRequired();
 
-
-                photo.Property(x => x.Type)
-                    .HasConversion<string>()
+                photo.Property(x => x.DisplayOrder)
                     .IsRequired();
-
-
-                photo.Property(x => x.IsPrimary)
-                    .IsRequired();
-
-
-                photo.Property(x => x.UploadedAt)
-                    .IsRequired();
-
 
                 photo.WithOwner()
                     .HasForeignKey(x => x.VehicleId);
             });
+
+        // ============================
+        // Indices
+        // ============================
+        builder.HasIndex(x => x.OwnerId);
+        builder.HasIndex(x => x.Status);
+        builder.HasIndex(x => x.AverageRating);
     }
 }
