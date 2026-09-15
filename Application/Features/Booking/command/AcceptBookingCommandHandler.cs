@@ -1,10 +1,9 @@
+using Application.Common;
 using Application.Dto.Booking;
 using Domain.Abstraction;
 using Domain.Entities;
 using Domain.Enums;
-using FluentResults;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace Application.Features.Booking.Command
 {
@@ -19,29 +18,23 @@ namespace Application.Features.Booking.Command
 
         public async Task<Result<BookingDto>> Handle(AcceptBookingCommand request, CancellationToken cancellationToken)
         {
-            var booking = await _bookingRepository.GetByIdWithVehicleAsync(request.BookingId);
+            var booking = await _bookingRepository.GetByIdAsync(request.BookingId);
 
             if (booking == null)
             {
-                return Result.Fail("Booking not found.");
-            }
-
-            if (booking.Vehicle.OwnerId != request.OwnerId)
-            {
-                return Result.Fail("Unauthorized to accept this booking.");
+                return Result<BookingDto>.Failure("Booking not found.");
             }
 
             if (booking.Status != BookingStatus.Pending)
             {
-                return Result.Fail("Only pending bookings can be accepted.");
+                return Result<BookingDto>.Failure("Only pending bookings can be accepted.");
             }
 
-            booking.Status = BookingStatus.Confirmed;
-            booking.UpdatedAt = DateTime.UtcNow;
+            booking.Approve();
 
             await _bookingRepository.UpdateAsync(booking);
 
-            return Result.Ok(new BookingDto 
+            return Result<BookingDto>.Success(new BookingDto 
             { 
                 Id = booking.Id, 
                 VehicleId = booking.VehicleId, 
