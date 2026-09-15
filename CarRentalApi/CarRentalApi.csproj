@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="14.0.0" />
-    <PackageReference Include="MediatR" Version="12.5.0" />
+    <PackageReference Include="MediatR" Version="14.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.3" />
@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Application\Vehicle\command\" />
+    <Folder Include="Features\Vehicle\Queries\" />
     <Folder Include="Uploads\" />
   </ItemGroup>
 
