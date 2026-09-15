@@ -1,11 +1,11 @@
 ﻿using Domain.Common;
 
-namespace Domain.Entities.Vehicle;
+namespace Domain.Entities;
 
 public class Vehicle : AggregateRoot
 {
     public Guid OwnerId { get; private set; }
-    
+
     public string Title { get; private set; } = string.Empty;
     public string Description { get; private set; } = string.Empty;
 
@@ -16,20 +16,12 @@ public class Vehicle : AggregateRoot
     public int Mileage { get; private set; }
     public VehicleStatus Status { get; private set; }
 
-    // Denormalized, event-updated — avoids recomputing from Reviews on every
-    // search/list read. Never set directly; only via RecalculateAverageRating,
-    // which is called by a handler reacting to ReviewSubmittedEvent.
     public decimal AverageRating { get; private set; }
     public int ReviewCount { get; private set; }
 
-    // Photos have no lifecycle independent of Vehicle, so they're the only
-    // child owned directly by this aggregate. Bookings, Reviews, and
-    // DamageReports are separate aggregate roots that reference this
-    // Vehicle by VehicleId — they are NOT held here, to keep this aggregate
-    // cheap to load and to avoid ambiguity about where they're mutated from.
-    private readonly List<VehiclePhoto> _photos = new();
+    private readonly List<VehiclePhoto> _photos = [];
     public IReadOnlyCollection<VehiclePhoto> Photos => _photos.AsReadOnly();
-    
+
     private const int MaxPhotos = 10;
 
     private Vehicle() { } // EF Core
@@ -69,8 +61,6 @@ public class Vehicle : AggregateRoot
 
         return new Vehicle(ownerId, title, description, specification, price, mileage);
     }
-
-    // ----- Listing lifecycle -----
 
     public void PublishListing()
     {
@@ -118,8 +108,6 @@ public class Vehicle : AggregateRoot
         AddDomainEvent(new VehicleSuspendedEvent(Id, reason));
     }
 
-    // ----- Pricing / specification / location updates -----
-
     public void UpdatePrice(Money newPrice)
     {
         ArgumentNullException.ThrowIfNull(newPrice);
@@ -142,20 +130,12 @@ public class Vehicle : AggregateRoot
         Mileage = validated;
     }
 
-    // ----- Photos -----
-
-    public void AddPhoto(VehiclePhoto photo)
+    public void AddPhoto(string url, int displayOrder)
     {
         if (_photos.Count >= MaxPhotos)
             throw new DomainException($"Only {MaxPhotos} photos are allowed per vehicle.");
-        if(photo.IsPrimary)
-        {
-            foreach(var existing in _photos)
-            {
-                existing.RemovePrimary();
-            }
-        }
-        _photos.Add(photo);
+
+        _photos.Add(new VehiclePhoto(Id, url, displayOrder));
     }
 
     public void RemovePhoto(Guid photoId)
@@ -166,9 +146,6 @@ public class Vehicle : AggregateRoot
         _photos.Remove(photo);
     }
 
-    // ----- Called by application-layer handlers reacting to domain events
-    //       from the Review aggregate; Vehicle never reads Review directly -----
-
     public void RecalculateAverageRating(decimal newAverage, int reviewCount)
     {
         if (newAverage < 0 || newAverage > 5)
@@ -177,8 +154,6 @@ public class Vehicle : AggregateRoot
         AverageRating = newAverage;
         ReviewCount = reviewCount;
     }
-
-    // ----- Private validation helpers -----
 
     private static string ValidateTitle(string title)
     {
@@ -206,8 +181,10 @@ public enum VehicleStatus
 {
     PendingApproval,
     Available,
-    Booked,
     Maintenance,
     Inactive,
     Suspended
+    // Deliberately no "Booked" status — whether a vehicle is currently
+    // booked is derived from Booking/VehicleAvailability records, never
+    // stored statically on Vehicle. See ddd-conventions.md.
 }
