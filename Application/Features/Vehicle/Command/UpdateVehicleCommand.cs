@@ -5,7 +5,7 @@ namespace Application.Features.Vehicle.Command
 {
     public class UpdateVehicleCommand : IRequest<Result<int>>
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public Guid OwnerId { get; set; }
 
         public string? Make { get; set; }

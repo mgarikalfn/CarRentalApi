@@ -1,9 +1,8 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Application.Dto.User;
 using Domain.Entities;
 using CarRentalApi.Service;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,9 +17,13 @@ namespace CarRentalApi.Controllers
         private readonly IConfiguration _configuration;
         private readonly ITokenService _tokenService;
 
-        public AuthController(UserManager<ApplicationUser> userManager,SignInManager<ApplicationUser> signInManager,IConfiguration configuration,ITokenService tokenService)
+        public AuthController(
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
+            IConfiguration configuration,
+            ITokenService tokenService)
         {
-         _userManager = userManager;
+            _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
             _tokenService = tokenService;
@@ -29,57 +32,40 @@ namespace CarRentalApi.Controllers
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-            var user = new ApplicationUser
-            {
-                UserName = registerDto.Email,
-                Email = registerDto.Email,
-                FirstName = registerDto.FirstName,
-                LastName = registerDto.LastName
-            };
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var user = ApplicationUser.Register(
+                registerDto.FirstName,
+                registerDto.LastName,
+                registerDto.Email);
+
+            user.UserName = registerDto.Email;
+
             var result = await _userManager.CreateAsync(user, registerDto.Password);
             if (result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(user, registerDto.ChooseRole);
-                // Add default claim for new users
                 await _userManager.AddClaimAsync(user, new Claim("UserType", "Regular"));
 
-
-                // Add driver license claim if provided
                 if (!string.IsNullOrEmpty(registerDto.DriverLicenseNumber))
-                {
-                    await _userManager.AddClaimAsync(user,
-                        new Claim("DriverLicense", registerDto.DriverLicenseNumber));
-                }
+                    await _userManager.AddClaimAsync(user, new Claim("DriverLicense", registerDto.DriverLicenseNumber));
 
                 return Ok(new { Message = "User registered successfully" });
-
-
             }
             return BadRequest(result.Errors);
         }
+
         [HttpPost("Login")]
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            // Find user by email (async)
             var user = await _userManager.FindByEmailAsync(loginDto.Email);
-            if (user == null)
-            {
-                return Unauthorized(new { Message = "Invalid login attempt" });
-            }
+            if (user == null) return Unauthorized(new { Message = "Invalid login attempt" });
 
-
-            // Attempt login
             var result = await _signInManager.PasswordSignInAsync(
-                user.UserName, // Use UserName instead of Email
-                loginDto.Password,
-                loginDto.RememberMe,
-                lockoutOnFailure: false);
+                user.UserName!, loginDto.Password, loginDto.RememberMe, lockoutOnFailure: false);
 
             if (result.Succeeded)
             {
@@ -90,10 +76,9 @@ namespace CarRentalApi.Controllers
                     Token = token,
                     UserId = user.Id,
                     Email = user.Email,
-                    Roles = await _userManager.GetRolesAsync(user) // Include user roles
+                    Roles = await _userManager.GetRolesAsync(user)
                 });
             }
-
             return Unauthorized(new { Message = "Invalid login attempt" });
         }
 
@@ -101,8 +86,7 @@ namespace CarRentalApi.Controllers
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            return RedirectToAction("Index", "Home");
+            return Ok(new { Message = "Logged out successfully" });
         }
-
     }
 }

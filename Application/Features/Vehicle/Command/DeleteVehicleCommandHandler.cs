@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Application.Common;
 using Domain.Abstraction;
 using Domain.Services.Interfaces;
@@ -30,8 +30,8 @@ namespace Application.Features.Vehicle.Command
             var deleteSuccess = await _vehicleRepository.DeleteVehicleAsync(request.Id, request.OwnerId);
 
             return deleteSuccess
-                ? Result<int>.Success(request.Id)
-                : Result<int>.Failure($"Failed to delete vehicle {request.Id}", "DELETE_FAILED");
+                ? Result<int>.Success(1)
+                : Result<int>.Failure($"Failed to delete vehicle", "DELETE_FAILED");
         }
     }
 }

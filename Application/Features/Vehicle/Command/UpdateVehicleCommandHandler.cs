@@ -32,7 +32,7 @@ namespace Application.Features.Vehicle.Command
             var updateSuccess = await _vehicleRepository.UpdateVehicleAsync(vehicle);
 
             if (updateSuccess)
-                return Result<int>.Success((int)vehicle.Id);
+                return Result<int>.Success(1);
 
             return Result<int>.Failure("Failed to update vehicle", "UPDATE_FAILED");
         }

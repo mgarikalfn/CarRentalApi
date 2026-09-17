@@ -1,81 +1,62 @@
-﻿using Application.Dto.vehicle;
+using Application.Dto.vehicle;
 using Domain.Entities;
 
 namespace CarRentalApi.Extensions
 {
-    // Extensions/VehicleQueryExtensions.cs
     public static class VehicleQueryExtensions
     {
-        public static IQueryable<Vehicle> ApplyFilter(this IQueryable<Vehicle> query, VehicleFilterDto filter)
+        public static IQueryable<Domain.Entities.Vehicle> ApplyFilter(
+            this IQueryable<Domain.Entities.Vehicle> query, VehicleFilterDto filter)
         {
-            // Basic filters
             if (!string.IsNullOrEmpty(filter.Make))
-                query = query.Where(v => v.Make.Contains(filter.Make));
+                query = query.Where(v => v.Specification.Brand.Contains(filter.Make));
 
             if (!string.IsNullOrEmpty(filter.Model))
-                query = query.Where(v => v.Model.Contains(filter.Model));
+                query = query.Where(v => v.Specification.Model.Contains(filter.Model));
 
             if (filter.MinYear.HasValue)
-                query = query.Where(v => v.Year >= filter.MinYear);
+                query = query.Where(v => v.Specification.Year >= filter.MinYear);
 
             if (filter.MaxYear.HasValue)
-                query = query.Where(v => v.Year <= filter.MaxYear);
+                query = query.Where(v => v.Specification.Year <= filter.MaxYear);
 
-            // Price range
             if (filter.MinDailyPrice.HasValue)
-                query = query.Where(v => v.DailyPrice >= filter.MinDailyPrice);
+                query = query.Where(v => v.Price.DailyPrice >= filter.MinDailyPrice);
 
             if (filter.MaxDailyPrice.HasValue)
-                query = query.Where(v => v.DailyPrice <= filter.MaxDailyPrice);
+                query = query.Where(v => v.Price.DailyPrice <= filter.MaxDailyPrice);
 
-            // Vehicle specs
             if (!string.IsNullOrEmpty(filter.TransmissionType))
-                query = query.Where(v => v.TransmissionType == filter.TransmissionType);
+                query = query.Where(v => v.Specification.Transmission.ToString() == filter.TransmissionType);
 
             if (!string.IsNullOrEmpty(filter.FuelType))
-                query = query.Where(v => v.FuelType == filter.FuelType);
+                query = query.Where(v => v.Specification.FuelType.ToString() == filter.FuelType);
 
             if (filter.MinSeats.HasValue)
-                query = query.Where(v => v.Seats >= filter.MinSeats);
-
-            // Availability filter
-            if (filter.StartDate.HasValue && filter.EndDate.HasValue)
-            {
-                query = query.Where(v => v.Availabilities.Any(a =>
-                    a.StartDate <= filter.StartDate &&
-                    a.EndDate >= filter.EndDate &&
-                    !v.Bookings.Any(b =>
-                        (b.StartDate <= filter.EndDate && b.EndDate >= filter.StartDate))));
-            }
-
-            // Features filter
-            if (filter.FeatureIds != null && filter.FeatureIds.Any())
-            {
-                query = query.Where(v => v.VehicleFeatures
-                    .Select(vf => vf.FeatureId)
-                    .All(fid => filter.FeatureIds.Contains(fid)));
-            }
+                query = query.Where(v => v.Specification.SeatCount >= filter.MinSeats);
 
             return query;
         }
 
-        public static IQueryable<Vehicle> ApplySorting(this IQueryable<Vehicle> query, VehicleFilterDto filter)
+        public static IQueryable<Domain.Entities.Vehicle> ApplySorting(
+            this IQueryable<Domain.Entities.Vehicle> query, VehicleFilterDto filter)
         {
-            return filter.SortBy.ToLower() switch
+            return filter.SortBy?.ToLower() switch
             {
                 "price" => filter.SortDescending
-                    ? query.OrderByDescending(v => v.DailyPrice)
-                    : query.OrderBy(v => v.DailyPrice),
+                    ? query.OrderByDescending(v => v.Price.DailyPrice)
+                    : query.OrderBy(v => v.Price.DailyPrice),
                 "year" => filter.SortDescending
-                    ? query.OrderByDescending(v => v.Year)
-                    : query.OrderBy(v => v.Year),
+                    ? query.OrderByDescending(v => v.Specification.Year)
+                    : query.OrderBy(v => v.Specification.Year),
                 _ => filter.SortDescending
-                    ? query.OrderByDescending(v => v.Make)
-                    : query.OrderBy(v => v.Make)
+                    ? query.OrderByDescending(v => v.Specification.Brand)
+                    : query.OrderBy(v => v.Specification.Brand)
             };
         }
 
-        public static IQueryable<Vehicle> ApplyPagination(this IQueryable<Vehicle> query, VehicleFilterDto filter)
+        public static IQueryable<Domain.Entities.Vehicle> ApplyPagination(
+            this IQueryable<Domain.Entities.Vehicle> query, VehicleFilterDto filter)
         {
             return query
                 .Skip((filter.PageNumber - 1) * filter.PageSize)

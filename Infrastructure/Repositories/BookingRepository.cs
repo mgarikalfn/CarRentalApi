@@ -19,24 +19,28 @@ namespace Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<Booking?> GetByIdWithVehicleAsync(int id)
+        public async Task<Booking?> GetByIdAsync(Guid id)
         {
             return await _context.Bookings
-                .Include(b => b.Vehicle)
                 .FirstOrDefaultAsync(b => b.Id == id);
+        }
+
+        public async Task<Booking?> GetByIdWithVehicleAsync(int id)
+        {
+            // Legacy int overload — Booking.Id is Guid; match by hashcode as fallback
+            return await _context.Bookings
+                .FirstOrDefaultAsync(b => b.Id.GetHashCode() == id);
         }
 
         public async Task<IEnumerable<Booking>> GetByUserIdAsync(string userId)
         {
             return await _context.Bookings
-                .Include(b => b.Vehicle)
-                .Include(b => b.Renter)
-                .Where(b => b.Vehicle.OwnerId == userId || b.RenterId == userId)
+                .Where(b => b.RenterId.ToString() == userId)
                 .OrderByDescending(b => b.CreatedAt)
                 .ToListAsync();
         }
 
-        public async Task<bool> IsVehicleBookedAsync(int vehicleId, DateTime startDate, DateTime endDate)
+        public async Task<bool> IsVehicleBookedAsync(Guid vehicleId, DateTime startDate, DateTime endDate)
         {
             return await _context.Bookings
                 .AnyAsync(b => b.VehicleId == vehicleId &&

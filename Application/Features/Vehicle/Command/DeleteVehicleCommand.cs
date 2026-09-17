@@ -1,12 +1,11 @@
-﻿
-using FluentResults;
+﻿using Application.Common;
 using MediatR;
 
 namespace Application.Features.Vehicle.Command
 {
-    public class DeleteVehicleCommand:IRequest<Result<int>>
+    public class DeleteVehicleCommand : IRequest<Result<int>>
     {
         public string OwnerId { get; set; }
-        public int Id { get; set; }
+        public Guid Id { get; set; }
     }
 }

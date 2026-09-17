@@ -26,18 +26,16 @@ namespace Application.Features.Availability.Query
         {
             var vehicleExists = await _vehicleRepository.ExistsAsync(request.VehicleId);
             if (!vehicleExists)
-            {
                 return Result.Fail<List<AvailabilityDto>>("Vehicle not found");
-            }
 
-            var availabilities = (await _availabilityRepository.GetAvailabilityByIdAsync(request.VehicleId) is { } avail)
+            // GetAvailabilityByVehicleIdAsync(int id, Guid vehicleId) — id=0 means "find any for this vehicle"
+            var avail = await _availabilityRepository.GetAvailabilityByVehicleIdAsync(0, request.VehicleId, cancellationToken);
+            var availabilities = avail != null
                 ? new List<Domain.Entities.Availability> { avail }
                 : new List<Domain.Entities.Availability>();
 
             if (!availabilities.Any())
-            {
                 return Result.Fail<List<AvailabilityDto>>("No availabilities found");
-            }
 
             var availabilityDtos = _mapper.Map<List<AvailabilityDto>>(availabilities);
             return Result.Ok(availabilityDtos);

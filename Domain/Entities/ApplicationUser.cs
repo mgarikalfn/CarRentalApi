@@ -138,6 +138,17 @@ public class ApplicationUser : IdentityUser<Guid>
         MarkModified();
     }
 
+    public void AddDriverLicense(string licenseNumber, DateTime expiryDate)
+    {
+        if (string.IsNullOrWhiteSpace(licenseNumber))
+            throw new DomainException("License number is required.");
+        if (expiryDate <= DateTime.UtcNow.Date)
+            throw new DomainException("Driver license has expired.");
+        DriverLicenseNumber = licenseNumber.Trim();
+        IsDriverLicenseVerified = false;
+        MarkModified();
+    }
+
     private void MarkModified()
     {
         LastModifiedAt = DateTime.UtcNow;

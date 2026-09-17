@@ -6,8 +6,8 @@ namespace Application.Dto.Booking
 {
     public class BookingDto
     {
-        public int Id { get; set; }
-        public int VehicleId { get; set; }
+        public Guid Id { get; set; }
+        public Guid VehicleId { get; set; }
         public string RenterId { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }

@@ -41,15 +41,15 @@ namespace Application.Features.Vehicle.Command
                 request.Model,
                 request.Year,
                 request.Color,
-                System.Enum.Parse<FuelType>(request.FuelType),
-                System.Enum.Parse<TransmissionType>(request.TransmissionType),
+                System.Enum.Parse<Domain.Entities.FuelType>(request.FuelType),
+                System.Enum.Parse<Domain.Entities.TransmissionType>(request.TransmissionType),
                 "UNKNOWN_VIN",
                 request.LicensePlate,
                 request.Seats);
 
             var price = new Money(request.DailyPrice);
 
-            var vehicle = Vehicle.Create(
+            var vehicle = Domain.Entities.Vehicle.Create(
                 System.Guid.Parse(request.OwnerId),
                 request.Make + " " + request.Model,
                 request.Description ?? "",

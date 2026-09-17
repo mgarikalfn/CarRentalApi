@@ -8,6 +8,6 @@ namespace Application.Features.Vehicle
 {
     public class GetVehicleByIdQuery:IRequest<Result<VehicleDto>>
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
     }
 }

@@ -1,123 +1,63 @@
-﻿using AutoMapper;
 using Application.Dto.vehicle;
+using Domain.Abstraction;
 using Domain.Entities;
 using Domain.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 [Route("api/vehicles/{vehicleId}/images")]
 [ApiController]
 public class VehicleImagesController : ControllerBase
 {
     private readonly IFileStorageService _fileStorage;
-    private readonly Infrastructure.Data.RentalDbContext _context;
-    private readonly IMapper _mapper;
+    private readonly IVehicleRepository _vehicleRepository;
 
-    public VehicleImagesController(
-        IFileStorageService fileStorage,
-        Infrastructure.Data.RentalDbContext context,
-        IMapper mapper)
+    public VehicleImagesController(IFileStorageService fileStorage, IVehicleRepository vehicleRepository)
     {
         _fileStorage = fileStorage;
-        _context = context;
-        _mapper = mapper;
+        _vehicleRepository = vehicleRepository;
     }
 
     [HttpPost]
     public async Task<ActionResult<VehicleImageDto>> UploadVehicleImage(
-        [FromRoute] int vehicleId,
+        [FromRoute] Guid vehicleId,
         [FromForm] UploadVehicleImageDto uploadDto)
     {
         if (uploadDto?.ImageFile == null || uploadDto.ImageFile.Length == 0)
-        {
             return BadRequest("No valid image file provided.");
-        }
 
-        var vehicle = await _context.Vehicles
-            .Include(v => v.Images)
-            .FirstOrDefaultAsync(v => v.Id == vehicleId);
-
+        var vehicle = await _vehicleRepository.GetVehicleByIdAsync(vehicleId);
         if (vehicle == null)
-        {
             return NotFound("Vehicle not found");
-        }
 
-        try
-        {
-            var imageUrl = await _fileStorage.SaveVehicleImageAsync(uploadDto.ImageFile);
+        var imageUrl = await _fileStorage.SaveVehicleImageAsync(uploadDto.ImageFile);
+        vehicle.AddPhoto(imageUrl, uploadDto.DisplayOrder);
+        await _vehicleRepository.UpdateVehicleAsync(vehicle);
 
-            var newImage = new VehicleImage
-            {
-                VehicleId = vehicleId,
-                ImageUrl = imageUrl,
-                IsPrimary = uploadDto.IsPrimary,
-                DisplayOrder = uploadDto.DisplayOrder
-            };
-
-            if (newImage.IsPrimary || vehicle.Images.Count == 0)
-            {
-                foreach (var existingImage in vehicle.Images)
-                {
-                    existingImage.IsPrimary = false;
-                }
-                newImage.IsPrimary = true;
-            }
-
-            vehicle.Images.Add(newImage);
-            await _context.SaveChangesAsync();
-
-            // Use AutoMapper to map the entity to DTO
-            var imageDto = _mapper.Map<VehicleImageDto>(newImage);
-            return Ok(imageDto);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Error uploading image: {ex.Message}");
-        }
+        return Ok(new VehicleImageDto { ImageUrl = imageUrl });
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<VehicleImageDto>>> GetVehicleImages(int vehicleId)
+    public async Task<ActionResult<List<VehicleImageDto>>> GetVehicleImages([FromRoute] Guid vehicleId)
     {
-        var vehicle = await _context.Vehicles
-            .Include(v => v.Images)
-            .FirstOrDefaultAsync(v => v.Id == vehicleId);
-
+        var vehicle = await _vehicleRepository.GetVehicleByIdAsync(vehicleId);
         if (vehicle == null)
-        {
             return NotFound("Vehicle not found");
-        }
 
-        // Use AutoMapper to map the list of entities to DTOs
-        var imageDtos = _mapper.Map<List<VehicleImageDto>>(vehicle.Images);
+        var imageDtos = vehicle.Photos.Select(p => new VehicleImageDto { ImageUrl = p.Url }).ToList();
         return Ok(imageDtos);
     }
 
-    [HttpDelete("{imageId}")]
+    [HttpDelete("{photoId}")]
     public async Task<IActionResult> DeleteVehicleImage(
-        [FromRoute] int vehicleId,
-        [FromRoute] int imageId)
+        [FromRoute] Guid vehicleId,
+        [FromRoute] Guid photoId)
     {
-        var vehicle = await _context.Vehicles
-            .Include(v => v.Images)
-            .FirstOrDefaultAsync(v => v.Id == vehicleId);
+        var vehicle = await _vehicleRepository.GetVehicleByIdAsync(vehicleId);
         if (vehicle == null)
-        {
             return NotFound("Vehicle not found");
-        }
-        var image = vehicle.Images.FirstOrDefault(i => i.Id == imageId);
-        if (image == null)
-        {
-            return NotFound("Image not found");
-        }
-        // Delete the image from storage
-        var isDeleted = _fileStorage.DeleteVehicleImageAsync(image.ImageUrl);
-        if (!isDeleted)
-        {
-            return StatusCode(500, "Error deleting image from storage");
-        }
-        vehicle.Images.Remove(image);
-        await _context.SaveChangesAsync();
+
+        vehicle.RemovePhoto(photoId);
+        await _vehicleRepository.UpdateVehicleAsync(vehicle);
         return NoContent();
     }
 }

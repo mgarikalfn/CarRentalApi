@@ -36,12 +36,13 @@ namespace Application.Features.Availability.Command
             if (availability.Status != AvailabilityStatus.Active)
                 return Result<int>.Failure("Can't remove availability at this stage");
 
-            var deleteSuccess = await _availabilityRepository.DeleteAvailabilityAsync(
+            var deleteResult = await _availabilityRepository.DeleteAvailabilityAsync(
                 request.Id, string.Empty, cancellationToken);
 
-            return deleteSuccess
-                ? Result<int>.Success(request.Id)
-                : Result<int>.Failure("Failed to delete availability");
+            if (!deleteResult.Value)
+                return Result<int>.Failure("Failed to delete availability");
+
+            return Result<int>.Success(request.Id);
         }
     }
 }

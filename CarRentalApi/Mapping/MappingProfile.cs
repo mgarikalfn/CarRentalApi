@@ -10,42 +10,36 @@ using Domain.Enums;
 
 namespace CarRentalApi.Mapping
 {
-    public class MappingProfile:Profile
+    public class MappingProfile : Profile
     {
         public MappingProfile()
         {
-            //domain to dto
+            // Domain → DTO
             CreateMap<ApplicationUser, UserProfileDto>();
+            CreateMap<ApplicationUser, UserDto>();
+            CreateMap<ApplicationUser, OwnerDto>();
             CreateMap<Availability, AvailabilityDto>();
-            CreateMap<Booking, BookingDto>()
-     .ForMember(dest => dest.Vehicle, opt => opt.MapFrom(src => src.Vehicle))
-     .ForMember(dest => dest.Renter, opt => opt.MapFrom(src => src.Renter));
-            //dto to domain
-            CreateMap<CreateVehicleCommand, Vehicle>()
-            .ForMember(dest => dest.Images, opt => opt.Ignore()) // We'll handle this manually
-            .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
-            .ForMember(dest => dest.IsAvailable, opt => opt.MapFrom(_ => true));
 
+            // Booking → BookingDto: Booking holds VehicleId/RenterId only (no navigation properties per DDD)
+            CreateMap<Booking, BookingDto>()
+                .ForMember(dest => dest.Vehicle, opt => opt.Ignore())
+                .ForMember(dest => dest.Renter, opt => opt.Ignore());
+
+            // Vehicle → VehicleDto: map from Specification value object
+            CreateMap<Domain.Entities.Vehicle, VehicleDto>()
+                .ForMember(dest => dest.Make, opt => opt.MapFrom(src => src.Specification.Brand))
+                .ForMember(dest => dest.Model, opt => opt.MapFrom(src => src.Specification.Model))
+                .ForMember(dest => dest.LicensePlate, opt => opt.MapFrom(src => src.Specification.LicensePlate))
+                .ForMember(dest => dest.Color, opt => opt.MapFrom(src => src.Specification.Color));
+
+            // DTO → Command
             CreateMap<CreateVehicleDto, CreateVehicleCommand>();
             CreateMap<UpdateVehicleDto, UpdateVehicleCommand>();
-
-            CreateMap<Vehicle, VehicleDto>();
-            CreateMap<ApplicationUser, OwnerDto>();
-            CreateMap<ApplicationUser, UserDto>();
-            CreateMap<UpdateVehicleCommand, Vehicle>();
-
             CreateMap<CreateAvailabilityCommand, Availability>();
 
-            CreateMap<VehicleImage, VehicleImageDto>();
-
-            CreateMap<CreateBookingDto,Booking>()
-                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(_ => BookingStatus.Pending));
-
-            // Reverse mapping if needed
-            CreateMap<VehicleImageDto, VehicleImage>();
-
-
+            // VehiclePhoto → VehicleImageDto
+            CreateMap<VehiclePhoto, VehicleImageDto>()
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.Url));
         }
     }
 }
