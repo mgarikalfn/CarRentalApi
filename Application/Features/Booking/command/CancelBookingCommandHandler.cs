@@ -1,8 +1,7 @@
 using Application.Common;
 using Application.Dto.Booking;
 using Domain.Abstraction;
-using Domain.Entities;
-using Domain.Enums;
+using Domain.Common;
 using MediatR;
 
 namespace Application.Features.Booking.Command
@@ -21,31 +20,43 @@ namespace Application.Features.Booking.Command
             var booking = await _bookingRepository.GetByIdAsync(request.BookingId);
 
             if (booking == null)
-            {
                 return Result<BookingDto>.Failure("Booking not found.");
-            }
 
             if (booking.RenterId != request.UserId)
-            {
                 return Result<BookingDto>.Failure("Unauthorized to cancel this booking.");
-            }
 
-            if (booking.Status != BookingStatus.Pending && booking.Status != BookingStatus.Approved)
+            // Cancel() checks this.Status internally using the correct && guard:
+            //   Status != Pending && Status != Approved → throw
+            // No need to duplicate that logic here.
+            try
             {
-                return Result<BookingDto>.Failure("Booking cannot be cancelled in its current status.");
+                booking.Cancel(string.IsNullOrWhiteSpace(request.Reason)
+                    ? "Cancelled by renter"
+                    : request.Reason);
             }
-
-            booking.Cancel(request.Reason ?? "Cancelled by renter");
+            catch (DomainException ex)
+            {
+                return Result<BookingDto>.Failure(ex.Message);
+            }
 
             await _bookingRepository.UpdateAsync(booking);
 
-            return Result<BookingDto>.Success(new BookingDto 
-            { 
-                Id = booking.Id, 
-                VehicleId = booking.VehicleId, 
-                StartDate = booking.StartDate, 
-                EndDate = booking.EndDate, 
-                Status = booking.Status 
+            return Result<BookingDto>.Success(new BookingDto
+            {
+                Id = booking.Id,
+                VehicleId = booking.VehicleId,
+                RenterId = booking.RenterId,
+                StartDate = booking.StartDate,
+                EndDate = booking.EndDate,
+                Status = booking.Status,
+                CancellationReason = booking.CancellationReason,
+                Subtotal = booking.Price.Subtotal,
+                Discount = booking.Price.Discount,
+                InsuranceCost = booking.Price.InsuranceCost,
+                ServiceFee = booking.Price.ServiceFee,
+                TaxRate = booking.Price.TaxRate,
+                Total = booking.Price.Total,
+                Currency = booking.Price.Currency,
             });
         }
     }
