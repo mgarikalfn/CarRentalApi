@@ -1,8 +1,7 @@
 using Application.Common;
 using Application.Dto.Booking;
 using Domain.Abstraction;
-using Domain.Entities;
-using Domain.Enums;
+using Domain.Common;
 using MediatR;
 
 namespace Application.Features.Booking.Command
@@ -21,26 +20,38 @@ namespace Application.Features.Booking.Command
             var booking = await _bookingRepository.GetByIdAsync(request.BookingId);
 
             if (booking == null)
-            {
                 return Result<BookingDto>.Failure("Booking not found.");
-            }
 
-            if (booking.Status != BookingStatus.Pending)
+            // Reject() checks this.Status internally — aggregate enforces Pending-only guard.
+            try
             {
-                return Result<BookingDto>.Failure("Only pending bookings can be rejected.");
+                booking.Reject(string.IsNullOrWhiteSpace(request.Reason)
+                    ? "No reason provided"
+                    : request.Reason);
             }
-
-            booking.Reject(request.Reason ?? "No reason provided");
+            catch (DomainException ex)
+            {
+                return Result<BookingDto>.Failure(ex.Message);
+            }
 
             await _bookingRepository.UpdateAsync(booking);
 
-            return Result<BookingDto>.Success(new BookingDto 
-            { 
-                Id = booking.Id, 
-                VehicleId = booking.VehicleId, 
-                StartDate = booking.StartDate, 
-                EndDate = booking.EndDate, 
-                Status = booking.Status 
+            return Result<BookingDto>.Success(new BookingDto
+            {
+                Id = booking.Id,
+                VehicleId = booking.VehicleId,
+                RenterId = booking.RenterId,
+                StartDate = booking.StartDate,
+                EndDate = booking.EndDate,
+                Status = booking.Status,
+                RejectionReason = booking.RejectionReason,
+                Subtotal = booking.Price.Subtotal,
+                Discount = booking.Price.Discount,
+                InsuranceCost = booking.Price.InsuranceCost,
+                ServiceFee = booking.Price.ServiceFee,
+                TaxRate = booking.Price.TaxRate,
+                Total = booking.Price.Total,
+                Currency = booking.Price.Currency,
             });
         }
     }
