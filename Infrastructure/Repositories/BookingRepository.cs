@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Domain.Abstraction;
 using Domain.Entities;
 using Domain.Enums;
@@ -25,18 +21,11 @@ namespace Infrastructure.Repositories
                 .FirstOrDefaultAsync(b => b.Id == id);
         }
 
-        public async Task<Booking?> GetByIdWithVehicleAsync(int id)
-        {
-            // Legacy int overload — Booking.Id is Guid; match by hashcode as fallback
-            return await _context.Bookings
-                .FirstOrDefaultAsync(b => b.Id.GetHashCode() == id);
-        }
-
-        public async Task<IEnumerable<Booking>> GetByUserIdAsync(string userId)
+        public async Task<IEnumerable<Booking>> GetByUserIdAsync(Guid userId)
         {
             return await _context.Bookings
-                .Where(b => b.RenterId.ToString() == userId)
-                .OrderByDescending(b => b.CreatedAt)
+                .Where(b => b.RenterId == userId)
+                .OrderByDescending(b => b.StartDate)
                 .ToListAsync();
         }
 
