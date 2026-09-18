@@ -1,5 +1,5 @@
-using Application.Features.Availability.Command;
-using Application.Features.Availability.Query;
+using Application.Features.Availabilities.Command;
+using Application.Features.Availabilities.Query;
 using Application.Dto.Availablity;
 using Domain.Entities;
 using Microsoft.AspNetCore.Authorization;

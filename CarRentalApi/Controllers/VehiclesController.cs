@@ -1,8 +1,8 @@
 using System.Security.Claims;
 using Application.Common;
 using Application.Dto.vehicle;
-using Application.Features.Vehicle.Command;
-using Application.Features.Vehicle;
+using Application.Features.Vehicles.Command;
+using Application.Features.Vehicles;
 using AutoMapper;
 using Domain.Abstraction;
 using Domain.Entities;

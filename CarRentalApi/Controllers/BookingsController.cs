@@ -1,6 +1,6 @@
 using Application.Common;
 using Application.Dto.Booking;
-using Application.Features.Booking.Command;
+using Application.Features.Bookings.Command;
 using Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

@@ -1,6 +1,6 @@
 using Application.Dto.Payment;
-using Application.Features.Payment.Commands;
-using Application.Features.Payment.Queries;
+using Application.Features.Payments.Commands;
+using Application.Features.Payments.Queries;
 using Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
