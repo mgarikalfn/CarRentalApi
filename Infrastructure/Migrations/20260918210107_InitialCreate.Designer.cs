@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(RentalDbContext))]
-    partial class RentalDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260918210107_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -148,7 +151,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("VehicleId", "StartDate", "EndDate");
 
-                    b.ToTable("Availabilities", (string)null);
+                    b.ToTable("Availabilities");
                 });
 
             modelBuilder.Entity("Domain.Entities.Booking", b =>
@@ -203,7 +206,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("VehicleId");
 
-                    b.ToTable("Bookings", (string)null);
+                    b.ToTable("Bookings");
                 });
 
             modelBuilder.Entity("Domain.Entities.Payment", b =>
@@ -264,7 +267,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("Status");
 
-                    b.ToTable("Payments", (string)null);
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("Domain.Entities.Review", b =>
@@ -466,7 +469,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("Status");
 
-                    b.ToTable("Vehicles", (string)null);
+                    b.ToTable("Vehicles");
                 });
 
             modelBuilder.Entity("Domain.Entities.VerificationRecord", b =>
@@ -691,7 +694,7 @@ namespace Infrastructure.Migrations
 
                             b1.HasKey("BookingId");
 
-                            b1.ToTable("Bookings", (string)null);
+                            b1.ToTable("Bookings");
 
                             b1.WithOwner()
                                 .HasForeignKey("BookingId");
@@ -720,7 +723,7 @@ namespace Infrastructure.Migrations
 
                             b1.HasKey("BookingId");
 
-                            b1.ToTable("Bookings", (string)null);
+                            b1.ToTable("Bookings");
 
                             b1.WithOwner()
                                 .HasForeignKey("BookingId");
@@ -758,7 +761,7 @@ namespace Infrastructure.Migrations
 
                             b1.HasKey("PaymentId");
 
-                            b1.ToTable("Payments", (string)null);
+                            b1.ToTable("Payments");
 
                             b1.WithOwner()
                                 .HasForeignKey("PaymentId");
@@ -829,7 +832,31 @@ namespace Infrastructure.Migrations
 
                             b1.HasKey("VehicleId");
 
-                            b1.ToTable("Vehicles", (string)null);
+                            b1.ToTable("Vehicles");
+
+                            b1.WithOwner()
+                                .HasForeignKey("VehicleId");
+                        });
+
+                    b.OwnsOne("Domain.Entities.Money", "Price", b1 =>
+                        {
+                            b1.Property<Guid>("VehicleId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<decimal>("Amount")
+                                .HasPrecision(10, 2)
+                                .HasColumnType("numeric(10,2)")
+                                .HasColumnName("Amount");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .HasMaxLength(3)
+                                .HasColumnType("character varying(3)")
+                                .HasColumnName("Currency");
+
+                            b1.HasKey("VehicleId");
+
+                            b1.ToTable("Vehicles");
 
                             b1.WithOwner()
                                 .HasForeignKey("VehicleId");
@@ -863,30 +890,6 @@ namespace Infrastructure.Migrations
                             b1.HasIndex("VehicleId");
 
                             b1.ToTable("VehiclePhotos", (string)null);
-
-                            b1.WithOwner()
-                                .HasForeignKey("VehicleId");
-                        });
-
-                    b.OwnsOne("Domain.Entities.Money", "Price", b1 =>
-                        {
-                            b1.Property<Guid>("VehicleId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<decimal>("Amount")
-                                .HasPrecision(10, 2)
-                                .HasColumnType("numeric(10,2)")
-                                .HasColumnName("Amount");
-
-                            b1.Property<string>("Currency")
-                                .IsRequired()
-                                .HasMaxLength(3)
-                                .HasColumnType("character varying(3)")
-                                .HasColumnName("Currency");
-
-                            b1.HasKey("VehicleId");
-
-                            b1.ToTable("Vehicles", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("VehicleId");
@@ -944,7 +947,7 @@ namespace Infrastructure.Migrations
 
                             b1.HasKey("VehicleId");
 
-                            b1.ToTable("Vehicles", (string)null);
+                            b1.ToTable("Vehicles");
 
                             b1.WithOwner()
                                 .HasForeignKey("VehicleId");
