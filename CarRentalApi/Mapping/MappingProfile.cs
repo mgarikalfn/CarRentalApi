@@ -1,10 +1,11 @@
 using Application.Dto.Availablity;
 using Application.Dto.Booking;
 using Application.Dto.Payment;
+using Application.Dto.Review;
 using Application.Dto.User;
 using Application.Dto.vehicle;
-using Application.Features.Availability.Command;
-using Application.Features.Vehicle.Command;
+using Application.Features.Availabilities.Command;
+using Application.Features.Vehicles.Command;
 using AutoMapper;
 using Domain.Entities;
 
@@ -55,6 +56,9 @@ namespace CarRentalApi.Mapping
             CreateMap<Payment, PaymentDto>()
                 .ForMember(dest => dest.Amount,   opt => opt.MapFrom(src => src.PaidAmount.Amount))
                 .ForMember(dest => dest.Currency, opt => opt.MapFrom(src => src.PaidAmount.Currency));
+
+            // Review → ReviewDto: all property names match directly
+            CreateMap<Review, ReviewDto>();
         }
     }
 }
