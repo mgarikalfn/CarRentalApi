@@ -21,10 +21,10 @@ namespace CarRentalApi.Extensions
                 query = query.Where(v => v.Specification.Year <= filter.MaxYear);
 
             if (filter.MinDailyPrice.HasValue)
-                query = query.Where(v => v.Price.DailyPrice >= filter.MinDailyPrice);
+                query = query.Where(v => v.Price.Amount >= filter.MinDailyPrice);
 
             if (filter.MaxDailyPrice.HasValue)
-                query = query.Where(v => v.Price.DailyPrice <= filter.MaxDailyPrice);
+                query = query.Where(v => v.Price.Amount <= filter.MaxDailyPrice);
 
             if (!string.IsNullOrEmpty(filter.TransmissionType))
                 query = query.Where(v => v.Specification.Transmission.ToString() == filter.TransmissionType);
@@ -44,8 +44,8 @@ namespace CarRentalApi.Extensions
             return filter.SortBy?.ToLower() switch
             {
                 "price" => filter.SortDescending
-                    ? query.OrderByDescending(v => v.Price.DailyPrice)
-                    : query.OrderBy(v => v.Price.DailyPrice),
+                    ? query.OrderByDescending(v => v.Price.Amount)
+                    : query.OrderBy(v => v.Price.Amount),
                 "year" => filter.SortDescending
                     ? query.OrderByDescending(v => v.Specification.Year)
                     : query.OrderBy(v => v.Specification.Year),
