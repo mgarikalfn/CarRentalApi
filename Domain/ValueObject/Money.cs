@@ -4,18 +4,18 @@ namespace Domain.Entities;
 
 public record Money : ValueObject
 {
-    public decimal DailyPrice { get; }
+    public decimal Amount { get; }
     public string Currency { get; }
 
-    public Money(decimal dailyPrice, string currency = "BIRR")
+    public Money(decimal amount, string currency = "BIRR")
     {
-        if (dailyPrice <= 0)
-            throw new DomainException("Daily price must be positive.");
+        if (amount <= 0)
+            throw new DomainException("Amount must be positive.");
 
         if (string.IsNullOrWhiteSpace(currency))
             throw new DomainException("Currency is required.");
 
-        DailyPrice = dailyPrice;
+        Amount = amount;
         Currency = currency.Trim().ToUpperInvariant();
     }
 }
