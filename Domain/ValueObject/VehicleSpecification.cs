@@ -11,7 +11,7 @@ public record VehicleSpecification : ValueObject
     public string Color { get; }
     public FuelType FuelType { get; }
     public TransmissionType Transmission { get; }
-    public string VIN { get; }
+    public string Vin { get; }
     public string LicensePlate { get; }
     public int SeatCount { get; }
 
@@ -32,7 +32,7 @@ public record VehicleSpecification : ValueObject
         Color = ValidateColor(color);
         FuelType = EnumGuard.ValidateDefined(fuelType, nameof(FuelType));
         Transmission = EnumGuard.ValidateDefined(transmission, nameof(Transmission));
-        VIN = ValidateVin(vin);
+        Vin = ValidateVin(vin);
         LicensePlate = ValidateLicensePlate(licensePlate);
         SeatCount = ValidateSeatCount(seatCount);
     }
