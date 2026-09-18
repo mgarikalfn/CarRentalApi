@@ -2,7 +2,7 @@ using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Infrastructure.Configurations;
+namespace Infrastructure.Data.Configurations;
 
 public class ReviewConfiguration : IEntityTypeConfiguration<Review>
 {
@@ -18,38 +18,62 @@ public class ReviewConfiguration : IEntityTypeConfiguration<Review>
         builder.Property(r => r.VehicleId)
             .IsRequired();
 
-        builder.Property(r => r.ReviewerId)
-            .IsRequired();
-
-        builder.Property(r => r.RevieweeId)
-            .IsRequired();
-
         builder.Property(r => r.Rating)
             .IsRequired();
 
         builder.Property(r => r.Comment)
-            .HasMaxLength(1000)
-            .IsRequired();
+            .HasMaxLength(1000);
 
         builder.Property(r => r.Status)
             .HasConversion<string>()
             .IsRequired();
 
+        // IsFlaggedForReview: set by any authenticated user via Flag();
+        // does NOT affect Status, which is admin-only.
+        builder.Property(r => r.IsFlaggedForReview)
+            .IsRequired()
+            .HasDefaultValue(false);
+
+        builder.Property(r => r.FlaggedAt);
+
         builder.Property(r => r.CreatedAt)
             .IsRequired();
 
-        // Helpful indexes
-        builder.HasIndex(r => r.VehicleId);
+        // ── FK #1: ReviewerId → ApplicationUser (the review writer) ──────
+        // Explicitly declared on Review side to prevent shadow FK column.
+        // ddd-conventions.md §EF Core FK rule: two FKs to same table MUST
+        // both be explicit or EF produces ReviewerId1/RevieweeId1 shadows.
+        builder.Property(r => r.ReviewerId)
+            .IsRequired();
+        builder.HasOne<ApplicationUser>()
+            .WithMany(u => u.GivenReviews)
+            .HasForeignKey(r => r.ReviewerId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasIndex(r => r.BookingId);
+        // ── FK #2: RevieweeId → ApplicationUser (the review subject) ─────
+        builder.Property(r => r.RevieweeId)
+            .IsRequired();
+        builder.HasOne<ApplicationUser>()
+            .WithMany(u => u.ReceivedReviews)
+            .HasForeignKey(r => r.RevieweeId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasIndex(r => r.ReviewerId);
+        // ── FK #3: VehicleId → Vehicle ────────────────────────────────────
+        // No navigation property on Review — Guid reference only.
+        // Explicit configuration prevents convention-based inference.
+        builder.HasOne<Vehicle>()
+            .WithMany()
+            .HasForeignKey(r => r.VehicleId)
+            .OnDelete(DeleteBehavior.Restrict);
 
+        // ── Idempotency: one review per reviewer per booking ──────────────
+        builder.HasIndex(r => new { r.BookingId, r.ReviewerId })
+            .IsUnique()
+            .HasDatabaseName("UX_Reviews_BookingId_ReviewerId");
+
+        // ── Additional indexes ────────────────────────────────────────────
         builder.HasIndex(r => r.RevieweeId);
-
-        builder.HasIndex(r => new { r.VehicleId, r.Status });
-
-        builder.HasIndex(r => new { r.ReviewerId, r.BookingId })
-            .IsUnique();
+        builder.HasIndex(r => r.VehicleId);
+        builder.HasIndex(r => r.Status);
     }
 }
