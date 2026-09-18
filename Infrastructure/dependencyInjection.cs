@@ -1,3 +1,4 @@
+using Application.Abstractions;
 using Domain.Abstraction;
 using Domain.Abstractions;
 using Domain.Entities;
@@ -38,6 +39,8 @@ public static class DependencyInjection
         services.AddScoped<
             IAvailabilityRepository,
             AvailabilityRepository>();
+
+        services.AddScoped<IPaymentRepository, PaymentRepository>();
         
         services.AddScoped<IDomainEventDispatcher, MediatrDomainEventDispatcher>();
         return services;
