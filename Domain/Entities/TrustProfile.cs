@@ -6,7 +6,7 @@ public class TrustProfile : AuditableEntity
 {
     public const decimal InitialScore = 50m;
 
-    public string UserId { get; private set; } = string.Empty;
+    public Guid UserId { get; private set; }
     public ApplicationUser User { get; private set; } = null!;
 
     public decimal OverallScore { get; private set; }
