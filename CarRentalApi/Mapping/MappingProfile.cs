@@ -1,5 +1,6 @@
 using Application.Dto.Availablity;
 using Application.Dto.Booking;
+using Application.Dto.Payment;
 using Application.Dto.User;
 using Application.Dto.vehicle;
 using Application.Features.Availability.Command;
@@ -49,6 +50,11 @@ namespace CarRentalApi.Mapping
             // VehiclePhoto → VehicleImageDto
             CreateMap<VehiclePhoto, VehicleImageDto>()
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.Url));
+
+            // Payment → PaymentDto: flatten PaidAmount value object
+            CreateMap<Payment, PaymentDto>()
+                .ForMember(dest => dest.Amount,   opt => opt.MapFrom(src => src.PaidAmount.Amount))
+                .ForMember(dest => dest.Currency, opt => opt.MapFrom(src => src.PaidAmount.Currency));
         }
     }
 }
