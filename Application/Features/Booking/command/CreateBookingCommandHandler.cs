@@ -45,7 +45,7 @@ namespace Application.Features.Booking.Command
 
             // Calculate total price using BookingPrice value object
             var days = (request.EndDate - request.StartDate).Days;
-            var dailyPrice = vehicle.Price.DailyPrice;
+            var dailyPrice = vehicle.Price.Amount;
             var totalPrice = days * dailyPrice;
             var bookingPrice = new BookingPrice(totalPrice, 0, 0, 0, 0, vehicle.Price.Currency);
 
