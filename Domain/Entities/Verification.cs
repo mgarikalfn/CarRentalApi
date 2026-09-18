@@ -4,7 +4,9 @@ namespace Domain.Entities;
 
 public class VerificationRecord : AuditableEntity
 {
-    public string UserId { get; private set; } = string.Empty;
+    // FK to ApplicationUser (the renter/host whose identity is being verified)
+    // Guid to match ApplicationUser.Id — no shadow property workaround
+    public Guid UserId { get; private set; }
     public ApplicationUser User { get; private set; } = null!;
 
     public VerificationType Type { get; private set; }
@@ -19,6 +21,8 @@ public class VerificationRecord : AuditableEntity
 
     public DateTime? VerifiedAt { get; private set; }
 
-    public string? VerifiedByUserId { get; private set; }
+    // FK to the admin/staff user who reviewed this record.
+    // Nullable — null means not yet reviewed.
+    // Guid? to match ApplicationUser.Id — not an opaque external identifier.
+    public Guid? VerifiedByUserId { get; private set; }
 }
-
