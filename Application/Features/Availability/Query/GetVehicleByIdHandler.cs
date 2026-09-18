@@ -4,7 +4,7 @@ using Domain.Abstraction;
 using FluentResults;
 using MediatR;
 
-namespace Application.Features.Availability.Query
+namespace Application.Features.Availabilities.Query
 {
     public class GetVehicleByIdHandler : IRequestHandler<GetAvailabilityById, Result<List<AvailabilityDto>>>
     {

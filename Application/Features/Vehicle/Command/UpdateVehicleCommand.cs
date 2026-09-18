@@ -1,7 +1,7 @@
 ﻿using Application.Common;
 using MediatR;
 
-namespace Application.Features.Vehicle.Command
+namespace Application.Features.Vehicles.Command
 {
     public class UpdateVehicleCommand : IRequest<Result<int>>
     {

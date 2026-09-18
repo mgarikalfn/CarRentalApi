@@ -1,11 +1,11 @@
 using Application.Abstractions;
 using Application.Common;
 using Application.Dto.Payment;
-using Application.Features.Payment.Queries;
+using Application.Features.Payments.Queries;
 using AutoMapper;
 using MediatR;
 
-namespace Application.Features.Payment.Queries;
+namespace Application.Features.Payments.Queries;
 
 public class GetPaymentByIdQueryHandler
     : IRequestHandler<GetPaymentByIdQuery, Result<PaymentDto>>

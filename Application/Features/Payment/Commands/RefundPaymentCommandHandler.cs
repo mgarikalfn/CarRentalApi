@@ -5,7 +5,7 @@ using AutoMapper;
 using Domain.Common;
 using MediatR;
 
-namespace Application.Features.Payment.Commands;
+namespace Application.Features.Payments.Commands;
 
 public class RefundPaymentCommandHandler
     : IRequestHandler<RefundPaymentCommand, Result<PaymentDto>>

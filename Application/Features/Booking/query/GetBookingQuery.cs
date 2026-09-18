@@ -3,7 +3,7 @@ using Application.Dto.Booking;
 using Domain.Enums;
 using MediatR;
 
-namespace Application.Features.Booking.Query
+namespace Application.Features.Bookings.Query
 {
     public class GetBookingQuery : IRequest<Result<List<BookingDto>>>
     {

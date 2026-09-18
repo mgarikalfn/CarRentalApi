@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Application.Common;
 
-namespace Application.Features.Vehicle.Command
+namespace Application.Features.Vehicles.Command
 {
     public class CreateVehicleCommand : IRequest<Result<int>>
     {

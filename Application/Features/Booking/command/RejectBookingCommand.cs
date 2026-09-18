@@ -2,7 +2,7 @@ using Application.Common;
 using Application.Dto.Booking;
 using MediatR;
 
-namespace Application.Features.Booking.Command
+namespace Application.Features.Bookings.Command
 {
     public class RejectBookingCommand : IRequest<Result<BookingDto>>
     {

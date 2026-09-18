@@ -3,7 +3,7 @@ using Application.Dto.Booking;
 using Domain.Enums;
 using MediatR;
 
-namespace Application.Features.Booking.Command
+namespace Application.Features.Bookings.Command
 {
     public class CreateBookingCommand : IRequest<Result<BookingDto>>
     {

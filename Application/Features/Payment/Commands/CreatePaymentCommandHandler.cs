@@ -7,7 +7,7 @@ using Domain.Entities;
 using Domain.Enums;
 using MediatR;
 
-namespace Application.Features.Payment.Commands;
+namespace Application.Features.Payments.Commands;
 
 public class CreatePaymentCommandHandler
     : IRequestHandler<CreatePaymentCommand, Result<PaymentDto>>

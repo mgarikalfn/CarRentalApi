@@ -3,7 +3,7 @@ using Domain.Abstraction;
 using Domain.Enums;
 using MediatR;
 
-namespace Application.Features.Availability.Command
+namespace Application.Features.Availabilities.Command
 {
     public class DeleteAvailabilityCommandHandler : IRequestHandler<DeleteAvailabilityCommand, Result<int>>
     {

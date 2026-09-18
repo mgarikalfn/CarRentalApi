@@ -2,7 +2,7 @@
 using Domain.Enums;
 using MediatR;
 
-namespace Application.Features.Vehicle
+namespace Application.Features.Vehicles
 {
     public class GetVehicleQuery : IRequest<List<VehicleDto>>
     {

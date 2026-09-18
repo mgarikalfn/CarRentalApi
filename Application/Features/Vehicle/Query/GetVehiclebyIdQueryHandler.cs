@@ -5,7 +5,7 @@ using Domain.Abstraction;
 using FluentResults;
 using MediatR;
 
-namespace Application.Features.Vehicle
+namespace Application.Features.Vehicles
 {
     public class GetVehiclebyIdQueryHandler:IRequestHandler<GetVehicleByIdQuery, Result<VehicleDto>>
     {

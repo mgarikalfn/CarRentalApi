@@ -4,7 +4,7 @@ using Application.Dto.vehicle;
 using FluentResults;
 using MediatR;
 
-namespace Application.Features.Vehicle
+namespace Application.Features.Vehicles
 {
     public class GetVehicleByIdQuery:IRequest<Result<VehicleDto>>
     {

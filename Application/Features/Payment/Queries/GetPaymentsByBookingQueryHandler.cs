@@ -4,7 +4,7 @@ using Application.Dto.Payment;
 using AutoMapper;
 using MediatR;
 
-namespace Application.Features.Payment.Queries;
+namespace Application.Features.Payments.Queries;
 
 public class GetPaymentsByBookingQueryHandler
     : IRequestHandler<GetPaymentsByBookingQuery, Result<List<PaymentDto>>>

@@ -6,7 +6,7 @@ using Domain.Entities;
 using Domain.Enums;
 using MediatR;
 
-namespace Application.Features.Booking.Command
+namespace Application.Features.Bookings.Command
 {
     public class CreateBookingCommandHandler : IRequestHandler<CreateBookingCommand, Result<BookingDto>>
     {

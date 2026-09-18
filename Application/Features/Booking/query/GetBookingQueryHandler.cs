@@ -4,7 +4,7 @@ using Application.Dto.Booking;
 using Domain.Abstraction;
 using MediatR;
 
-namespace Application.Features.Booking.Query
+namespace Application.Features.Bookings.Query
 {
     public class GetBookingQueryHandler : IRequestHandler<GetBookingQuery, Result<List<BookingDto>>>
     {

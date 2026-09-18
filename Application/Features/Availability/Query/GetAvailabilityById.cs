@@ -3,7 +3,7 @@ using Application.Dto.Availablity;
 using FluentResults;
 using MediatR;
 
-namespace Application.Features.Availability.Query
+namespace Application.Features.Availabilities.Query
 {
     public class GetAvailabilityById : IRequest<Result<List<AvailabilityDto>>>
     {

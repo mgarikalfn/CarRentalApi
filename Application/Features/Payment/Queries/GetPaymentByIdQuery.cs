@@ -2,7 +2,7 @@ using Application.Common;
 using Application.Dto.Payment;
 using MediatR;
 
-namespace Application.Features.Payment.Queries;
+namespace Application.Features.Payments.Queries;
 
 public class GetPaymentByIdQuery : IRequest<Result<PaymentDto>>
 {

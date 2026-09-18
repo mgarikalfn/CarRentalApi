@@ -4,7 +4,7 @@ using Domain.Abstraction;
 using Domain.Common;
 using MediatR;
 
-namespace Application.Features.Booking.Command
+namespace Application.Features.Bookings.Command
 {
     public class CancelBookingCommandHandler : IRequestHandler<CancelBookingCommand, Result<BookingDto>>
     {

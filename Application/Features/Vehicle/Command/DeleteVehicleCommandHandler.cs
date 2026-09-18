@@ -4,7 +4,7 @@ using Domain.Abstraction;
 using Domain.Services.Interfaces;
 using MediatR;
 
-namespace Application.Features.Vehicle.Command
+namespace Application.Features.Vehicles.Command
 {
     public class DeleteVehicleCommandHandler : IRequestHandler<DeleteVehicleCommand, Result<int>>
     {

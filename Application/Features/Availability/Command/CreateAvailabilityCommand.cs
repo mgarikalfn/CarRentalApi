@@ -2,7 +2,7 @@ using Application.Common;
 using Domain.Enums;
 using MediatR;
 
-namespace Application.Features.Availability.Command
+namespace Application.Features.Availabilities.Command
 {
     public class CreateAvailabilityCommand : IRequest<Result<int>>
     {

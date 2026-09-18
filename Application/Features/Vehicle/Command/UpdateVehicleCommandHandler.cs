@@ -3,7 +3,7 @@ using Application.Common;
 using Domain.Abstraction;
 using MediatR;
 
-namespace Application.Features.Vehicle.Command
+namespace Application.Features.Vehicles.Command
 {
     public class UpdateVehicleCommandHandler : IRequestHandler<UpdateVehicleCommand, Result<int>>
     {

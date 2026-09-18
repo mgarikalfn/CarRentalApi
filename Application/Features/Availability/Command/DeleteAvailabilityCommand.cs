@@ -1,7 +1,7 @@
 using Application.Common;
 using MediatR;
 
-namespace Application.Features.Availability.Command
+namespace Application.Features.Availabilities.Command
 {
     public class DeleteAvailabilityCommand : IRequest<Result<int>>
     {

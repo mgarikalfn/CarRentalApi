@@ -4,7 +4,7 @@ using Domain.Abstraction;
 using Domain.Enums;
 using MediatR;
 
-namespace Application.Features.Availability.Command
+namespace Application.Features.Availabilities.Command
 {
     public class CreateAvailabilityCommandHandler : IRequestHandler<CreateAvailabilityCommand, Result<int>>
     {

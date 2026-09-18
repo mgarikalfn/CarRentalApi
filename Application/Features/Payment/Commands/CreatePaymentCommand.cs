@@ -3,7 +3,7 @@ using Application.Dto.Payment;
 using Domain.Enums;
 using MediatR;
 
-namespace Application.Features.Payment.Commands;
+namespace Application.Features.Payments.Commands;
 
 public class CreatePaymentCommand : IRequest<Result<PaymentDto>>
 {

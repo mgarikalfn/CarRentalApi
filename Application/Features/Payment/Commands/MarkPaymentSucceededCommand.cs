@@ -2,7 +2,7 @@ using Application.Common;
 using Application.Dto.Payment;
 using MediatR;
 
-namespace Application.Features.Payment.Commands;
+namespace Application.Features.Payments.Commands;
 
 public class MarkPaymentSucceededCommand : IRequest<Result<PaymentDto>>
 {
