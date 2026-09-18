@@ -70,7 +70,7 @@ public class VehicleConfiguration
                     .HasConversion<string>()
                     .IsRequired();
 
-                specification.Property(x => x.VIN)
+                specification.Property(x => x.Vin)
                     .HasColumnName("VIN")
                     .HasMaxLength(17)
                     .IsRequired();
@@ -91,8 +91,8 @@ public class VehicleConfiguration
             x => x.Price,
             money =>
             {
-                money.Property(x => x.DailyPrice)
-                    .HasColumnName("DailyPrice")
+                money.Property(x => x.Amount)
+                    .HasColumnName("Amount")
                     .HasPrecision(10, 2)
                     .IsRequired();
 
