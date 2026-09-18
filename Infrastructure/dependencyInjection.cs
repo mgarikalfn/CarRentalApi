@@ -41,7 +41,9 @@ public static class DependencyInjection
             AvailabilityRepository>();
 
         services.AddScoped<IPaymentRepository, PaymentRepository>();
-        
+
+        services.AddScoped<IReviewRepository, ReviewRepository>();
+
         services.AddScoped<IDomainEventDispatcher, MediatrDomainEventDispatcher>();
         return services;
 
