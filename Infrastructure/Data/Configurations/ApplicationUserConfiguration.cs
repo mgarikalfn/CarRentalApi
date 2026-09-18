@@ -65,19 +65,10 @@ public class ApplicationUserConfiguration
             .OnDelete(DeleteBehavior.Restrict);
 
 
-        // User -> Given Reviews
-        builder.HasMany(x => x.GivenReviews)
-            .WithOne()
-            .HasForeignKey(x => x.ReviewerId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-
-        // User -> Received Reviews
-        builder.HasMany(x => x.ReceivedReviews)
-            .WithOne()
-            .HasForeignKey(x => x.RevieweeId)
-            .OnDelete(DeleteBehavior.Restrict);
-
+        // Note: GivenReviews and ReceivedReviews FK relationships are declared
+        // on the Review side (ReviewConfiguration) using explicit .HasOne<ApplicationUser>()
+        // .WithMany(u => u.GivenReviews/.ReceivedReviews) .HasForeignKey(...).
+        // Do NOT redeclare them here — duplicate declarations produce extra shadow FK columns.
 
         builder.HasIndex(x => x.Status);
     }
