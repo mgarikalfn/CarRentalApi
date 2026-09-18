@@ -47,7 +47,7 @@ namespace Application.Features.Vehicle.Command
                 request.LicensePlate,
                 request.Seats);
 
-            var price = new Money(request.DailyPrice);
+            var price = new Money(request.DailyPrice); // DailyPrice is a field on the command DTO, passed as `amount` to Money ctor
 
             var vehicle = Domain.Entities.Vehicle.Create(
                 System.Guid.Parse(request.OwnerId),
