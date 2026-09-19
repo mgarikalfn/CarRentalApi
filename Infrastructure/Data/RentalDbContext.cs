@@ -25,6 +25,7 @@ public sealed class RentalDbContext
     public DbSet<Availability> Availabilities => Set<Availability>();
     public DbSet<Payment> Payments => Set<Payment>();
     public DbSet<Review> Reviews => Set<Review>();
+    public DbSet<DamageReport> DamageReports => Set<DamageReport>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
