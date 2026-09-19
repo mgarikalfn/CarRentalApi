@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
+/// <summary>Vehicle listing management — create, read, update, delete vehicles.</summary>
 [ApiController]
 [Route("api/vehicles")]
 [Authorize]
@@ -31,6 +32,9 @@ public class VehiclesController : ControllerBase
     }
 
     [HttpPost]
+    [ProducesResponseType(typeof(int), 200)]
+    [ProducesResponseType(typeof(string), 400)]
+    [ProducesResponseType(401)]
     public async Task<ActionResult<int>> CreateVehicle([FromForm] CreateVehicleDto createVehicleDto)
     {
         var userId = _userManager.GetUserId(User);
@@ -45,6 +49,8 @@ public class VehiclesController : ControllerBase
 
     [HttpGet("{id}")]
     [AllowAnonymous]
+    [ProducesResponseType(typeof(VehicleDto), 200)]
+    [ProducesResponseType(404)]
     public async Task<ActionResult<VehicleDto>> GetVehicle(Guid id)
     {
         var query = new GetVehicleByIdQuery { Id = id };
@@ -53,6 +59,8 @@ public class VehiclesController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [ProducesResponseType(typeof(int), 200)]
+    [ProducesResponseType(typeof(string), 400)]
     public async Task<IActionResult> UpdateVehicle(Guid id, [FromBody] UpdateVehicleDto vehicleUpdateDto)
     {
         var user = await _userManager.GetUserAsync(User);
@@ -67,6 +75,8 @@ public class VehiclesController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(typeof(string), 400)]
     public async Task<ActionResult> DeleteVehicle(Guid id)
     {
         var user = await _userManager.GetUserAsync(User);
