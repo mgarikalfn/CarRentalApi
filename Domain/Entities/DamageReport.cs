@@ -1,116 +1,144 @@
-﻿using Domain.Common;
+using Domain.Common;
 using Domain.Enums;
 
 namespace Domain.Entities;
 
+/// <summary>
+/// Owned type embedded in DamageReport via OwnsMany.
+/// No Id, no independent table.
+/// </summary>
+public class DamageImage
+{
+    public string Url { get; private set; } = string.Empty;
+    public DateTime UploadedAt { get; private set; }
+
+    // Parameterless constructor for EF Core materialization.
+    private DamageImage() { }
+
+    internal DamageImage(string url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+            throw new DomainException("Image URL is required.");
+        Url = url.Trim();
+        UploadedAt = DateTime.UtcNow;
+    }
+}
+
 public class DamageReport : AggregateRoot
 {
-    public Guid RentalId { get; private set; }
+    private const int MaxImages = 10;
 
+    private readonly List<DamageImage> _images = [];
+
+    // ── Identity references (Guid only — no navigation properties) ──────────
+    public Guid BookingId { get; private set; }
     public Guid VehicleId { get; private set; }
 
-    public Guid ReporterId { get; private set; }
+    /// <summary>FK to ApplicationUser — the renter or host who filed the report.</summary>
+    public Guid ReportedByUserId { get; private set; }
 
-
+    // ── Fields ───────────────────────────────────────────────────────────────
     public string Description { get; private set; } = string.Empty;
-
-
-    public DamageType DamageType { get; private set; }
-
-    public DamageSeverity Severity { get; private set; }
-
-
     public DamageReportStatus Status { get; private set; }
+    public DateTime? ResolvedAt { get; private set; }
 
+    // ── Owned collection ─────────────────────────────────────────────────────
+    public IReadOnlyCollection<DamageImage> Images => _images.AsReadOnly();
 
-    public bool? IsRenterAtFault { get; private set; }
+    // ── EF Core parameterless constructor ────────────────────────────────────
+    private DamageReport() { }
 
-
-    public decimal? EstimatedCost { get; private set; }
-
-
-    private DamageReport()
-    {
-
-    }
-
-
+    // ── Real constructor ─────────────────────────────────────────────────────
     private DamageReport(
-        Guid rentalId,
+        Guid bookingId,
         Guid vehicleId,
-        Guid reporterId,
-        string description,
-        DamageType damageType,
-        DamageSeverity severity)
+        Guid reportedByUserId,
+        string description)
     {
+        BookingId        = bookingId;
+        VehicleId        = vehicleId;
+        ReportedByUserId = reportedByUserId;
+        Description      = description;
+        Status           = DamageReportStatus.Open;
 
-        RentalId = rentalId;
-        VehicleId = vehicleId;
-        ReporterId = reporterId;
-
-        Description = description;
-
-        DamageType = damageType;
-        Severity = severity;
-
-        Status = DamageReportStatus.Reported;
+        AddDomainEvent(new DamageReportCreatedEvent(Id, BookingId, VehicleId, ReportedByUserId));
     }
 
-
+    // ── Factory ──────────────────────────────────────────────────────────────
     public static DamageReport Create(
-        Guid rentalId,
+        Guid bookingId,
         Guid vehicleId,
-        Guid reporterId,
-        string description,
-        DamageType damageType,
-        DamageSeverity severity)
+        Guid reportedByUserId,
+        string description)
     {
-        if(string.IsNullOrWhiteSpace(description))
-            throw new DomainException(
-                "Damage description is required");
+        if (bookingId == Guid.Empty)
+            throw new DomainException("BookingId is required.");
+        if (vehicleId == Guid.Empty)
+            throw new DomainException("VehicleId is required.");
+        if (reportedByUserId == Guid.Empty)
+            throw new DomainException("ReportedByUserId is required.");
+        if (string.IsNullOrWhiteSpace(description))
+            throw new DomainException("Description is required.");
+        if (description.Trim().Length > 2000)
+            throw new DomainException("Description cannot exceed 2000 characters.");
 
-
-        return new DamageReport(
-            rentalId,
-            vehicleId,
-            reporterId,
-            description,
-            damageType,
-            severity);
+        return new DamageReport(bookingId, vehicleId, reportedByUserId, description.Trim());
     }
 
-
-    public void Approve(decimal estimatedCost)
+    // ── Image management ─────────────────────────────────────────────────────
+    public void AddImage(string url)
     {
-        if(Status != DamageReportStatus.UnderReview)
-            throw new DomainException(
-                "Only reports under review can be approved");
-
-
-        if(estimatedCost <= 0)
-            throw new DomainException(
-                "Estimated cost must be positive");
-
-
-        EstimatedCost = estimatedCost;
-
-        Status = DamageReportStatus.Approved;
+        if (_images.Count >= MaxImages)
+            throw new DomainException($"A damage report cannot have more than {MaxImages} images.");
+        _images.Add(new DamageImage(url));
     }
 
+    // ── State transitions ────────────────────────────────────────────────────
 
-    public void AssignFault(bool renterAtFault)
+    /// <summary>Open → UnderReview. Guard: this.Status must be Open.</summary>
+    public void StartReview()
     {
-        IsRenterAtFault = renterAtFault;
+        // Guard reads this.Status — never a parameter
+        if (Status != DamageReportStatus.Open)
+            throw new DomainException("Only an open damage report can be placed under review.");
+
+        Status = DamageReportStatus.UnderReview;
     }
 
-
-    public void Resolve()
+    /// <summary>UnderReview → ResolvedAtFault. Guard: this.Status must be UnderReview.</summary>
+    public void ResolveAtFault()
     {
-        if(Status != DamageReportStatus.Approved)
-            throw new DomainException(
-                "Only approved reports can be resolved");
+        // Guard reads this.Status — never a parameter
+        if (Status != DamageReportStatus.UnderReview)
+            throw new DomainException("Only a report under review can be resolved at fault.");
 
+        Status     = DamageReportStatus.ResolvedAtFault;
+        ResolvedAt = DateTime.UtcNow;
 
-        Status = DamageReportStatus.Resolved;
+        AddDomainEvent(new DamageReportResolvedEvent(Id, BookingId, VehicleId, AtFault: true));
+    }
+
+    /// <summary>UnderReview → ResolvedNotAtFault. Guard: this.Status must be UnderReview.</summary>
+    public void ResolveNotAtFault()
+    {
+        // Guard reads this.Status — never a parameter
+        if (Status != DamageReportStatus.UnderReview)
+            throw new DomainException("Only a report under review can be resolved not at fault.");
+
+        Status     = DamageReportStatus.ResolvedNotAtFault;
+        ResolvedAt = DateTime.UtcNow;
+
+        AddDomainEvent(new DamageReportResolvedEvent(Id, BookingId, VehicleId, AtFault: false));
+    }
+
+    /// <summary>UnderReview → Dismissed. Guard: this.Status must be UnderReview.</summary>
+    public void Dismiss()
+    {
+        // Guard reads this.Status — never a parameter
+        if (Status != DamageReportStatus.UnderReview)
+            throw new DomainException("Only a report under review can be dismissed.");
+
+        Status = DamageReportStatus.Dismissed;
+        // No DamageReportResolvedEvent — Dismissed means no fault determination was made.
     }
 }
