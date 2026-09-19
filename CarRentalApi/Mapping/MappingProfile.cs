@@ -1,4 +1,5 @@
 using Application.Dto.Availablity;
+using Application.Dto.DamageReport;
 using Application.Dto.Booking;
 using Application.Dto.Payment;
 using Application.Dto.Review;
