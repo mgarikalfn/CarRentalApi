@@ -1,9 +1,11 @@
 using Application.Abstractions;
 using Domain.Abstraction;
 using Domain.Abstractions;
+using Domain.Services.Interfaces;
 using Domain.Entities;
 using Infrastructure.Data;
 using Infrastructure.Events;
+using Infrastructure.Services;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -45,6 +47,7 @@ public static class DependencyInjection
         services.AddScoped<IReviewRepository, ReviewRepository>();
     services.AddScoped<IDamageReportRepository, DamageReportRepository>();
 
+        services.AddScoped<IFileStorageService, FileStorageService>();
         services.AddScoped<IDomainEventDispatcher, MediatrDomainEventDispatcher>();
         return services;
 
