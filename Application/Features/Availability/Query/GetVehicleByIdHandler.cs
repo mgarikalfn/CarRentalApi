@@ -1,7 +1,7 @@
+using Application.Common;
 using Application.Dto.Availablity;
 using AutoMapper;
 using Domain.Abstraction;
-using FluentResults;
 using MediatR;
 
 namespace Application.Features.Availabilities.Query
@@ -22,23 +22,25 @@ namespace Application.Features.Availabilities.Query
             _mapper = mapper;
         }
 
-        public async Task<Result<List<AvailabilityDto>>> Handle(GetAvailabilityById request, CancellationToken cancellationToken)
+        public async Task<Result<List<AvailabilityDto>>> Handle(
+            GetAvailabilityById request,
+            CancellationToken cancellationToken)
         {
             var vehicleExists = await _vehicleRepository.ExistsAsync(request.VehicleId);
             if (!vehicleExists)
-                return Result.Fail<List<AvailabilityDto>>("Vehicle not found");
+                return Result<List<AvailabilityDto>>.Failure("Vehicle not found");
 
-            // GetAvailabilityByVehicleIdAsync(int id, Guid vehicleId) — id=0 means "find any for this vehicle"
-            var avail = await _availabilityRepository.GetAvailabilityByVehicleIdAsync(0, request.VehicleId, cancellationToken);
+            var avail = await _availabilityRepository.GetAvailabilityByVehicleIdAsync(
+                0, request.VehicleId, cancellationToken);
+
             var availabilities = avail != null
                 ? new List<Domain.Entities.Availability> { avail }
                 : new List<Domain.Entities.Availability>();
 
             if (!availabilities.Any())
-                return Result.Fail<List<AvailabilityDto>>("No availabilities found");
+                return Result<List<AvailabilityDto>>.Failure("No availabilities found");
 
-            var availabilityDtos = _mapper.Map<List<AvailabilityDto>>(availabilities);
-            return Result.Ok(availabilityDtos);
+            return Result<List<AvailabilityDto>>.Success(_mapper.Map<List<AvailabilityDto>>(availabilities));
         }
     }
 }
