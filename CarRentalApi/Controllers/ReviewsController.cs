@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CarRentalApi.Controllers;
 
+/// <summary>Review submission and moderation — two-sided reviews for completed bookings.</summary>
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
@@ -29,6 +30,9 @@ public class ReviewsController : ControllerBase
     /// The reviewee is derived server-side from booking participants.
     /// </summary>
     [HttpPost]
+    [ProducesResponseType(typeof(ReviewDto), 200)]
+    [ProducesResponseType(typeof(string), 400)]
+    [ProducesResponseType(401)]
     public async Task<ActionResult<ReviewDto>> CreateReview(
         [FromBody] CreateReviewRequest request)
     {
@@ -54,6 +58,8 @@ public class ReviewsController : ControllerBase
     /// Any authenticated user may call this. Does NOT hide the review.
     /// </summary>
     [HttpPost("{id}/flag")]
+    [ProducesResponseType(typeof(ReviewDto), 200)]
+    [ProducesResponseType(typeof(string), 400)]
     public async Task<ActionResult<ReviewDto>> FlagReview(Guid id)
     {
         var result = await _mediator.Send(new FlagReviewCommand { ReviewId = id });
@@ -64,6 +70,8 @@ public class ReviewsController : ControllerBase
     /// Hide a review from public view (admin only).
     /// </summary>
     [HttpPost("{id}/hide")]
+    [ProducesResponseType(typeof(ReviewDto), 200)]
+    [ProducesResponseType(typeof(string), 400)]
     public async Task<ActionResult<ReviewDto>> HideReview(Guid id)
     {
         var result = await _mediator.Send(new HideReviewCommand { ReviewId = id });
@@ -74,6 +82,8 @@ public class ReviewsController : ControllerBase
     /// Restore a hidden or flagged review to published/clean state (admin only).
     /// </summary>
     [HttpPost("{id}/restore")]
+    [ProducesResponseType(typeof(ReviewDto), 200)]
+    [ProducesResponseType(typeof(string), 400)]
     public async Task<ActionResult<ReviewDto>> RestoreReview(Guid id)
     {
         var result = await _mediator.Send(new RestoreReviewCommand { ReviewId = id });
@@ -84,6 +94,8 @@ public class ReviewsController : ControllerBase
     /// Get a review by its ID.
     /// </summary>
     [HttpGet("{id}")]
+    [ProducesResponseType(typeof(ReviewDto), 200)]
+    [ProducesResponseType(404)]
     public async Task<ActionResult<ReviewDto>> GetReviewById(Guid id)
     {
         var result = await _mediator.Send(new GetReviewByIdQuery { ReviewId = id });
@@ -94,6 +106,7 @@ public class ReviewsController : ControllerBase
     /// Get all reviews for a specific booking (up to two — one per direction).
     /// </summary>
     [HttpGet("booking/{bookingId}")]
+    [ProducesResponseType(typeof(List<ReviewDto>), 200)]
     public async Task<ActionResult<List<ReviewDto>>> GetReviewsByBooking(Guid bookingId)
     {
         var result = await _mediator.Send(new GetReviewsByBookingQuery { BookingId = bookingId });
@@ -104,6 +117,7 @@ public class ReviewsController : ControllerBase
     /// Get all reviews received by a specific user (reviews where they are the reviewee).
     /// </summary>
     [HttpGet("reviewee/{revieweeId}")]
+    [ProducesResponseType(typeof(List<ReviewDto>), 200)]
     public async Task<ActionResult<List<ReviewDto>>> GetReviewsByReviewee(Guid revieweeId)
     {
         var result = await _mediator.Send(new GetReviewsByRevieweeQuery { RevieweeId = revieweeId });
