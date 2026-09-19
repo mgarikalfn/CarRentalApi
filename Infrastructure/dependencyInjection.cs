@@ -43,6 +43,7 @@ public static class DependencyInjection
         services.AddScoped<IPaymentRepository, PaymentRepository>();
 
         services.AddScoped<IReviewRepository, ReviewRepository>();
+    services.AddScoped<IDamageReportRepository, DamageReportRepository>();
 
         services.AddScoped<IDomainEventDispatcher, MediatrDomainEventDispatcher>();
         return services;
