@@ -1,10 +1,10 @@
-﻿namespace Domain.Enums;
+namespace Domain.Enums;
 
 public enum DamageReportStatus
 {
-    Reported,
-    UnderReview,
-    Approved,
-    Rejected,
-    Resolved
+    Open             = 1,
+    UnderReview      = 2,
+    ResolvedAtFault  = 3,
+    ResolvedNotAtFault = 4,
+    Dismissed        = 5
 }
